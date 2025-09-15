@@ -1,0 +1,42 @@
+{
+  "name": "claude-conversation-search-mcp",
+  "version": "1.0.0",
+  "description": "MCP server for searching Claude Code conversation history with natural language queries",
+  "main": "dist/index.js",
+  "bin": {
+    "claude-conversation-search": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx watch src/index.ts",
+    "start": "node dist/index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "mcp",
+    "claude",
+    "search",
+    "conversation",
+    "history",
+    "model-context-protocol"
+  ],
+  "author": "",
+  "license": "MIT",
+  "homepage": "https://github.com/yourusername/claude-conversation-search-mcp",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/claude-conversation-search-mcp.git"
+  },
+  "bugs": {
+    "url": "https://github.com/yourusername/claude-conversation-search-mcp/issues"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.18.0",
+    "@types/better-sqlite3": "^7.6.13",
+    "@types/node": "^24.4.0",
+    "better-sqlite3": "^12.2.0",
+    "chokidar": "^4.0.3",
+    "tsx": "^4.20.5",
+    "typescript": "^5.9.2"
+  }
+}
