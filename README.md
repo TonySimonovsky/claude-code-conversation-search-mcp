@@ -293,6 +293,10 @@ MIT License - see [LICENSE](LICENSE) file for details
 
 Built using the [Model Context Protocol SDK](https://github.com/anthropics/model-context-protocol) by Anthropic.
 
+## Credits
+
+Developed by Tony AI Champ & Claude Code, 09-2025
+
 ## Support
 
 For issues, feature requests, or questions:
