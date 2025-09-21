@@ -2,14 +2,22 @@
   "name": "claude-conversation-search-mcp",
   "version": "1.0.0",
   "description": "MCP server for searching Claude Code conversation history with natural language queries",
-  "main": "dist/index.js",
+  "main": "lib/index.js",
   "bin": {
-    "claude-conversation-search": "./dist/index.js"
+    "claude-conversation-search": "./bin/claude-conversation-search"
   },
+  "files": [
+    "lib/",
+    "bin/",
+    "src/",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md"
+  ],
   "scripts": {
     "build": "tsc",
     "dev": "tsx watch src/index.ts",
-    "start": "node dist/index.js",
+    "start": "node lib/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
@@ -20,15 +28,18 @@
     "history",
     "model-context-protocol"
   ],
-  "author": "",
+  "author": "Your Name <your.email@example.com>",
   "license": "MIT",
-  "homepage": "https://github.com/yourusername/claude-conversation-search-mcp",
+  "homepage": "https://github.com/yourusername/claude-conversation-search-mcp#readme",
   "repository": {
     "type": "git",
-    "url": "https://github.com/yourusername/claude-conversation-search-mcp.git"
+    "url": "git+https://github.com/yourusername/claude-conversation-search-mcp.git"
   },
   "bugs": {
     "url": "https://github.com/yourusername/claude-conversation-search-mcp/issues"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.18.0",
