@@ -126,8 +126,27 @@ export class ConversationDatabase {
 
     // Add filters
     if (options.projectPath) {
-      query += ' AND m.project_path = ?';
-      params.push(options.projectPath);
+      // Support partial matching for project path
+      query += ' AND LOWER(m.project_path) LIKE ?';
+      params.push(`%${options.projectPath.toLowerCase()}%`);
+    }
+
+    if (options.excludeProjectPath) {
+      // Exclude projects matching this pattern
+      query += ' AND LOWER(m.project_path) NOT LIKE ?';
+      params.push(`%${options.excludeProjectPath.toLowerCase()}%`);
+    }
+
+    if (options.conversationId) {
+      // Filter by specific conversation ID
+      query += ' AND m.conversation_id = ?';
+      params.push(options.conversationId);
+    }
+
+    if (options.excludeConversationId) {
+      // Exclude specific conversation ID
+      query += ' AND m.conversation_id != ?';
+      params.push(options.excludeConversationId);
     }
 
     if (options.dateFrom) {

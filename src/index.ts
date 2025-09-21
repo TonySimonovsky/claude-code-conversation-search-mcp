@@ -9,6 +9,7 @@ import {
 } from '@modelcontextprotocol/sdk/types.js';
 import { ConversationIndexer } from './indexer/indexer';
 import { QueryParser } from './search/query';
+import { ResultFormatter } from './search/result-formatter';
 import { SearchOptions, SearchResult } from './types';
 import * as path from 'path';
 import * as os from 'os';
@@ -25,6 +26,7 @@ class ConversationSearchServer {
   private server: Server;
   private indexer: ConversationIndexer;
   private queryParser: QueryParser;
+  private resultFormatter: ResultFormatter;
   private config: ServerConfig;
   private indexingTimer?: NodeJS.Timeout;
 
@@ -38,6 +40,7 @@ class ConversationSearchServer {
       
       this.indexer = new ConversationIndexer(projectsPath, dbPath);
       this.queryParser = new QueryParser();
+      this.resultFormatter = new ResultFormatter();
       this.server = new Server(
         {
           name: 'claude-conversation-search',
@@ -234,82 +237,34 @@ class ConversationSearchServer {
       // Perform search
       const searchOptions: SearchOptions = {
         query: ftsQuery,
-        limit: effectiveLimit,
+        limit: effectiveLimit * 5, // Get more results for better grouping
         includeContext,
         contextSize: 2,
         ...filters,
       };
 
       const results = this.indexer.getDatabase().search(searchOptions);
-    
-    // Format results for display
-    const formattedResults = results.map((result: SearchResult) => {
-      // Extract conversation ID from result
-      const conversationId = result.message.conversationId;
       
-      // Decode project path from the encoded directory name
-      const decodedProjectPath = result.message.projectPath
-        .replace(/-Users-tonysimonovskiy-Dropbox-/g, '/Users/tonysimonovskiy/Dropbox/')
-        .replace(/-/g, ' ')
-        .replace(/\s+/g, ' ');
+      // Use ResultFormatter to process and group results
+      const { conversations, totalMatches, totalConversations } = this.resultFormatter.formatSearchResults(results, effectiveLimit);
       
-      return {
-        project: result.message.projectName,
-        timestamp: result.message.timestamp.toISOString(),
-        type: result.message.type,
-        content: result.message.content,
-        file: result.conversationFile,
-        toolOperations: result.message.toolOperations,
-        conversationId: conversationId,
-        projectPath: decodedProjectPath,
-        claudeCommand: `claude --resume ${conversationId}`,
-        openAction: {
-          available: true,
-          description: `Open conversation in Claude Code`,
-          conversationId: conversationId,
-          projectPath: decodedProjectPath
-        },
-        context: includeContext ? {
-          before: result.context.before.map(m => ({
-            type: m.type,
-            content: m.content.substring(0, 200),
-          })),
-          after: result.context.after.map(m => ({
-            type: m.type,
-            content: m.content.substring(0, 200),
-          })),
-        } : undefined,
+      // Build the JSON output structure
+      const output = {
+        query: query,
+        totalMatches: totalMatches,
+        totalConversations: totalConversations,
+        conversations: conversations
       };
-    });
-
-    // Group results by conversation ID and create resume commands
-    const conversationGroups = new Map<string, any[]>();
-    formattedResults.forEach(result => {
-      const convId = result.conversationId;
-      if (!conversationGroups.has(convId)) {
-        conversationGroups.set(convId, []);
-      }
-      conversationGroups.get(convId)!.push(result);
-    });
-
-    // Build resume commands summary
-    const resumeCommands = Array.from(conversationGroups.keys())
-      .map(convId => `claude --resume ${convId}`)
-      .join('\n');
 
       return {
         content: [
           {
             type: 'text',
-            text: `Found ${results.length} result(s) for query: "${query}"`,
-          },
-          {
-            type: 'text', 
-            text: JSON.stringify(formattedResults, null, 2),
+            text: `Found ${totalMatches} matches in ${totalConversations} conversations for query: "${query}"`,
           },
           {
             type: 'text',
-            text: `\nTo resume these conversations:\n${resumeCommands}`,
+            text: JSON.stringify(output, null, 2),
           },
         ],
       };

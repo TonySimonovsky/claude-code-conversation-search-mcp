@@ -56,6 +56,9 @@ export interface SearchOptions {
   limit?: number;
   offset?: number;
   projectPath?: string;
+  excludeProjectPath?: string;
+  conversationId?: string;
+  excludeConversationId?: string;
   dateFrom?: Date;
   dateTo?: Date;
   messageType?: string;

@@ -15,10 +15,35 @@ export class QueryParser {
       searchQuery = `Edit "${fileEditMatch[1]}"`;
     }
 
-    // Extract project filter
-    const projectMatch = input.match(/(?:in|from)\s+(?:project\s+)?([^\s]+)/i);
-    if (projectMatch) {
-      filters.projectPath = projectMatch[1];
+    // Extract project exclusion filter FIRST (to avoid conflict with "in")
+    // Matches: "not in project X", "not in X", "exclude project X", "except X"
+    const excludeProjectMatch = input.match(/(?:not\s+in|exclude|except)\s+(?:project\s+)?([a-z0-9-]+)/i);
+    if (excludeProjectMatch) {
+      const projectRef = excludeProjectMatch[1];
+      
+      // Check if it's a UUID (conversation ID)
+      if (this.isUUID(projectRef)) {
+        filters.excludeConversationId = projectRef;
+      } else {
+        // It's a project name/path
+        filters.excludeProjectPath = this.normalizeProjectPath(projectRef);
+      }
+      searchQuery = searchQuery.replace(excludeProjectMatch[0], '').trim();
+    }
+
+    // Extract project filter (inclusion) - check this AFTER exclusion
+    // Matches: "in project X", "in X project", "from project X", etc.
+    const projectMatch = input.match(/(?:in|from)\s+(?:project\s+)?([a-z0-9-]+)(?:\s+project)?/i);
+    if (projectMatch && !excludeProjectMatch) { // Only if we didn't already match an exclusion
+      const projectRef = projectMatch[1];
+      
+      // Check if it's a UUID (conversation ID)
+      if (this.isUUID(projectRef)) {
+        filters.conversationId = projectRef;
+      } else {
+        // It's a project name/path - could be partial
+        filters.projectPath = this.normalizeProjectPath(projectRef);
+      }
       searchQuery = searchQuery.replace(projectMatch[0], '').trim();
     }
 
@@ -65,9 +90,31 @@ export class QueryParser {
     return { searchQuery, filters };
   }
 
+  private isUUID(str: string): boolean {
+    // Check if string is a UUID format (8-4-4-4-12 hexadecimal)
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    return uuidRegex.test(str);
+  }
+
+  private normalizeProjectPath(projectRef: string): string {
+    // Handle common project name patterns
+    // Examples: "talking-to-ai", "talking_to_ai", "talking", "bookeus"
+    
+    // Remove quotes if present
+    projectRef = projectRef.replace(/['"]/g, '');
+    
+    // Convert spaces to hyphens (common in encoded paths)
+    projectRef = projectRef.replace(/\s+/g, '-');
+    
+    // Make it case-insensitive by converting to lowercase
+    projectRef = projectRef.toLowerCase();
+    
+    return projectRef;
+  }
+
   private cleanQuery(query: string): string {
     // Remove common words that don't help with search
-    const stopWords = ['where', 'when', 'what', 'how', 'did', 'we', 'i', 'the', 'a', 'an', 'was', 'were'];
+    const stopWords = ['where', 'when', 'what', 'how', 'did', 'we', 'i', 'the', 'a', 'an', 'was', 'were', 'discuss', 'discussed', 'conversation', 'about'];
     
     let cleaned = query.toLowerCase();
     stopWords.forEach(word => {
