@@ -23,6 +23,7 @@
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
     "test:performance": "jest tests/performance.test.ts --verbose --runInBand",
+    "test:edge-cases": "jest tests/edge-cases.test.ts --verbose --runInBand",
     "lint": "eslint src/**/*.ts",
     "lint:fix": "eslint src/**/*.ts --fix"
   },

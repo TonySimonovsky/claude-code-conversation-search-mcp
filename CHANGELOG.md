@@ -12,7 +12,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Comprehensive unit test suite with Jest framework (38 tests covering parser, database, and search)
 - Integration test suite for MCP protocol compliance (17 tests covering server initialization, tool execution, error handling, data persistence, and protocol compliance)
 - Performance benchmark suite (9 tests covering indexing, search, memory usage, and database performance with large datasets up to 10K messages)
-- Test scripts (`npm test`, `npm run test:watch`, `npm run test:coverage`, `npm run test:performance`) in package.json
+- Edge case test suite (20 tests covering corrupted files, permission issues, malformed data, database corruption, search edge cases, and resource handling)
+- Test scripts (`npm test`, `npm run test:watch`, `npm run test:coverage`, `npm run test:performance`, `npm run test:edge-cases`) in package.json
 - ESLint configuration with TypeScript support for code quality
 - Lint scripts (`npm run lint`, `npm run lint:fix`) in package.json
 - Comprehensive documentation with installation and usage examples
