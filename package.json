@@ -1,6 +1,7 @@
 {
   "name": "claude-code-conversation-search-mcp",
   "version": "1.0.0",
+  "type": "module",
   "description": "MCP server for searching Claude Code conversation history with natural language queries",
   "main": "lib/index.js",
   "bin": {
@@ -18,7 +19,9 @@
     "build": "tsc",
     "dev": "tsx watch src/index.ts",
     "start": "node lib/index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "eslint src/**/*.ts",
+    "lint:fix": "eslint src/**/*.ts --fix"
   },
   "keywords": [
     "mcp",
@@ -49,5 +52,10 @@
     "chokidar": "^4.0.3",
     "tsx": "^4.20.5",
     "typescript": "^5.9.2"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^8.44.1",
+    "@typescript-eslint/parser": "^8.44.1",
+    "eslint": "^9.36.0"
   }
 }
