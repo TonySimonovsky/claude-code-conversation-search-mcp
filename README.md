@@ -1,25 +1,90 @@
-# Claude Conversation Search MCP
+# Claude Code Conversation Search MCP
 
-An MCP (Model Context Protocol) server that enables searching through Claude Code conversation history stored locally in `~/.claude/projects`.
-
-## Features
-
-- 🔍 **Full-text search** across all conversations with natural language queries
-- 📝 **Smart query parsing** - Ask "Where did we create auth.js?" or "Show database optimizations"
-- 🗂️ **Project filtering** to search within specific projects
-- 📅 **Time-based filtering** (today, yesterday, last week, etc.)
-- 🛠️ **Tool operation tracking** - Track file edits, bash commands, and more
-- ⚡ **Lightning fast** - SQLite FTS5 provides instant search results
-- 🔄 **Auto-indexing** - Automatically indexes new conversations
-- 💾 **Incremental updates** - Only indexes new messages for efficiency
-
-## Installation
-
-### Via npm (recommended)
+Finally, searchable Claude Code conversations across all projects.
 
 ```bash
 npm install -g claude-code-conversation-search-mcp
 ```
+
+Query from any session:
+```bash
+"database migration setup"
+"authentication implementation" 
+"docker configuration issues"
+```
+
+Get project, date, summary, and resume command.
+
+## Features
+
+- **Cross-project search**: Query conversations from any project while working in any other
+- **Instant resume**: Get exact `claude --resume` commands for found conversations
+- **Real-time indexing**: New conversations are immediately searchable
+- **Natural language queries**: Search like you think, not like a database
+- **SQLite FTS**: Fast full-text search across thousands of conversations
+- **Zero config**: Works with existing Claude Code setup out of the box
+
+## Quick Start
+
+Install and it auto-configures with Claude Code:
+
+```bash
+npm install -g claude-code-conversation-search-mcp
+```
+
+Test from any Claude Code session:
+```bash
+"list my projects"
+"find recent conversations"
+```
+
+Search across all projects while working in any project.
+
+## Usage
+
+```bash
+# Search by topic
+"how we implemented caching"
+"API rate limiting discussion"
+"deployment pipeline setup"
+
+# Search by technology
+"redis configuration"
+"postgres migration scripts"
+"nginx reverse proxy"
+
+# Search by problem/solution
+"memory leak debugging"
+"performance optimization"
+"error handling patterns"
+```
+
+Each result includes:
+- Project name and path
+- Conversation date
+- Context summary  
+- Ready-to-use resume command
+
+## Technical
+
+Built with TypeScript, uses SQLite FTS5 for search, integrates via Model Context Protocol.
+
+**System requirements:**
+- Node.js 18+
+- Claude Code with MCP support
+- macOS, Linux, or Windows
+
+**Performance:**
+- Sub-second search across 10k+ conversations
+- Real-time indexing with file watching
+- Minimal memory footprint (~50MB)
+
+**Storage:**
+- SQLite database in `~/.claude/conversation-search/`
+- Indexes conversation content, not file contents
+- Automatic cleanup of deleted conversations
+
+## Installation
 
 ### From source
 

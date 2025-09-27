@@ -91,4 +91,8 @@ Desktop.ini
 !.yarn/sdks
 !.yarn/versions
 
+# NPM package tarballs
+*.tgz
+*.tar.gz
+
 */01-standards*
