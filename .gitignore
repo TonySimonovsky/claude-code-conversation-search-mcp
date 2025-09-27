@@ -68,6 +68,9 @@ final-*.js
 claude_mcp_config.json
 .claude/
 
+# MCP registry tokens
+.mcpregistry_*
+
 # Development documentation
 docs/development/
 

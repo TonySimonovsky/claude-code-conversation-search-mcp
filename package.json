@@ -3,6 +3,7 @@
   "version": "1.1.2",
   "type": "module",
   "description": "Never lose your Claude Code conversations again. Search across all projects, find old chats, and resume where you left off.",
+  "mcpName": "io.github.TonySimonovsky/claude-code-conversation-search-mcp",
   "main": "lib/index.js",
   "bin": {
     "claude-code-conversation-search": "./bin/claude-code-conversation-search"
