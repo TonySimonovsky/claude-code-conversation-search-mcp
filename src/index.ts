@@ -16,11 +16,37 @@ import * as path from 'path';
 import * as os from 'os';
 
 interface ServerConfig {
+  // Database configuration
   dbPath?: string;
+  dbBackupEnabled?: boolean;
+  dbBackupInterval?: number;
+  
+  // Indexing configuration
   projectsDir?: string;
   indexInterval?: number;
+  autoIndexing?: boolean;
+  fullTextMinLength?: number;
+  indexBatchSize?: number;
+  
+  // Search configuration
   maxResults?: number;
+  defaultContextSize?: number;
+  searchTimeout?: number;
+  
+  // Performance configuration
+  maxMemoryMB?: number;
+  cacheSize?: number;
+  
+  // Logging and monitoring
   debug?: boolean;
+  logLevel?: string;
+  logToFile?: boolean;
+  logFilePath?: string;
+  
+  // Security and validation
+  allowedFileExtensions?: string[];
+  maxFileSize?: number;
+  indexThreads?: number;
 }
 
 class ConversationSearchServer {
@@ -63,24 +89,101 @@ class ConversationSearchServer {
   }
 
   private loadConfig(): ServerConfig {
-    const config = {
+    const config: ServerConfig = {
+      // Database configuration
       dbPath: process.env.CONVERSATION_DB_PATH,
+      dbBackupEnabled: process.env.DB_BACKUP_ENABLED === 'true',
+      dbBackupInterval: process.env.DB_BACKUP_INTERVAL ? parseInt(process.env.DB_BACKUP_INTERVAL) : 86400000, // 24 hours
+      
+      // Indexing configuration
       projectsDir: process.env.CLAUDE_PROJECTS_DIR,
-      indexInterval: process.env.INDEX_INTERVAL ? parseInt(process.env.INDEX_INTERVAL) : 300000,
+      indexInterval: process.env.INDEX_INTERVAL ? parseInt(process.env.INDEX_INTERVAL) : 300000, // 5 minutes
+      autoIndexing: process.env.AUTO_INDEXING !== 'false', // Default true
+      fullTextMinLength: process.env.FULL_TEXT_MIN_LENGTH ? parseInt(process.env.FULL_TEXT_MIN_LENGTH) : 3,
+      indexBatchSize: process.env.INDEX_BATCH_SIZE ? parseInt(process.env.INDEX_BATCH_SIZE) : 100,
+      
+      // Search configuration
       maxResults: process.env.MAX_RESULTS ? parseInt(process.env.MAX_RESULTS) : 20,
+      defaultContextSize: process.env.DEFAULT_CONTEXT_SIZE ? parseInt(process.env.DEFAULT_CONTEXT_SIZE) : 2,
+      searchTimeout: process.env.SEARCH_TIMEOUT ? parseInt(process.env.SEARCH_TIMEOUT) : 30000, // 30 seconds
+      
+      // Performance configuration
+      maxMemoryMB: process.env.MAX_MEMORY_MB ? parseInt(process.env.MAX_MEMORY_MB) : 512,
+      cacheSize: process.env.CACHE_SIZE ? parseInt(process.env.CACHE_SIZE) : 1000,
+      
+      // Logging and monitoring
       debug: process.env.DEBUG === 'true',
+      logLevel: process.env.LOG_LEVEL || 'info',
+      logToFile: process.env.LOG_TO_FILE === 'true',
+      logFilePath: process.env.LOG_FILE_PATH,
+      
+      // Security and validation
+      allowedFileExtensions: process.env.ALLOWED_FILE_EXTENSIONS ? 
+        process.env.ALLOWED_FILE_EXTENSIONS.split(',').map(ext => ext.trim()) : 
+        ['.jsonl'],
+      maxFileSize: process.env.MAX_FILE_SIZE ? parseInt(process.env.MAX_FILE_SIZE) : 104857600, // 100MB
+      indexThreads: process.env.INDEX_THREADS ? parseInt(process.env.INDEX_THREADS) : 1,
     };
 
+    this.validateConfig(config);
+    return config;
+  }
+
+  private validateConfig(config: ServerConfig): void {
     // Validate numeric configurations
-    if (config.indexInterval && (isNaN(config.indexInterval) || config.indexInterval < 0)) {
+    if (config.indexInterval !== undefined && (isNaN(config.indexInterval) || config.indexInterval < 0)) {
       throw new ConfigurationError('INDEX_INTERVAL must be a positive number');
     }
     
-    if (config.maxResults && (isNaN(config.maxResults) || config.maxResults < 1 || config.maxResults > 1000)) {
+    if (config.maxResults !== undefined && (isNaN(config.maxResults) || config.maxResults < 1 || config.maxResults > 1000)) {
       throw new ConfigurationError('MAX_RESULTS must be between 1 and 1000');
     }
 
-    return config;
+    if (config.defaultContextSize !== undefined && (isNaN(config.defaultContextSize) || config.defaultContextSize < 0 || config.defaultContextSize > 50)) {
+      throw new ConfigurationError('DEFAULT_CONTEXT_SIZE must be between 0 and 50');
+    }
+
+    if (config.searchTimeout !== undefined && (isNaN(config.searchTimeout) || config.searchTimeout < 1000 || config.searchTimeout > 300000)) {
+      throw new ConfigurationError('SEARCH_TIMEOUT must be between 1000ms and 300000ms (5 minutes)');
+    }
+
+    if (config.maxMemoryMB !== undefined && (isNaN(config.maxMemoryMB) || config.maxMemoryMB < 64 || config.maxMemoryMB > 8192)) {
+      throw new ConfigurationError('MAX_MEMORY_MB must be between 64MB and 8GB');
+    }
+
+    if (config.indexBatchSize !== undefined && (isNaN(config.indexBatchSize) || config.indexBatchSize < 1 || config.indexBatchSize > 10000)) {
+      throw new ConfigurationError('INDEX_BATCH_SIZE must be between 1 and 10000');
+    }
+
+    if (config.fullTextMinLength !== undefined && (isNaN(config.fullTextMinLength) || config.fullTextMinLength < 1 || config.fullTextMinLength > 50)) {
+      throw new ConfigurationError('FULL_TEXT_MIN_LENGTH must be between 1 and 50');
+    }
+
+    if (config.maxFileSize !== undefined && (isNaN(config.maxFileSize) || config.maxFileSize < 1024 || config.maxFileSize > 1073741824)) {
+      throw new ConfigurationError('MAX_FILE_SIZE must be between 1KB and 1GB');
+    }
+
+    if (config.indexThreads !== undefined && (isNaN(config.indexThreads) || config.indexThreads < 1 || config.indexThreads > 16)) {
+      throw new ConfigurationError('INDEX_THREADS must be between 1 and 16');
+    }
+
+    if (config.dbBackupInterval !== undefined && (isNaN(config.dbBackupInterval) || config.dbBackupInterval < 3600000)) {
+      throw new ConfigurationError('DB_BACKUP_INTERVAL must be at least 1 hour (3600000ms)');
+    }
+
+    // Validate log level
+    const validLogLevels = ['error', 'warn', 'info', 'debug'];
+    if (config.logLevel && !validLogLevels.includes(config.logLevel)) {
+      throw new ConfigurationError(`LOG_LEVEL must be one of: ${validLogLevels.join(', ')}`);
+    }
+
+    // Validate file extensions
+    if (config.allowedFileExtensions) {
+      const invalidExts = config.allowedFileExtensions.filter(ext => !ext.startsWith('.') || ext.length < 2);
+      if (invalidExts.length > 0) {
+        throw new ConfigurationError(`Invalid file extensions: ${invalidExts.join(', ')}. Extensions must start with '.' and be at least 2 characters`);
+      }
+    }
   }
 
   private resolveHome(filePath: string): string {
@@ -164,6 +267,9 @@ class ConversationSearchServer {
         
         case 'refresh_index':
           return await this.refreshIndex();
+        
+        case 'get_config_info':
+          return await this.getConfigInfo();
         
         case 'list_tools':
           return await this.listTools();
@@ -260,6 +366,14 @@ class ConversationSearchServer {
         },
       },
       {
+        name: 'get_config_info',
+        description: 'Get current configuration settings and validation status',
+        inputSchema: {
+          type: 'object',
+          properties: {},
+        },
+      },
+      {
         name: 'list_tools',
         description: 'List all available tools with their signatures and descriptions',
         inputSchema: {
@@ -293,7 +407,7 @@ class ConversationSearchServer {
         query: ftsQuery,
         limit: effectiveLimit * 5, // Get more results for better grouping
         includeContext,
-        contextSize: 2,
+        contextSize: this.config.defaultContextSize || 2,
         ...filters,
       };
 
@@ -365,7 +479,7 @@ class ConversationSearchServer {
 
   private async getMessageContext(args: any) {
     try {
-      const { messageId, contextSize = 5 } = args;
+      const { messageId, contextSize = this.config.defaultContextSize || 5 } = args;
       
       if (!messageId || typeof messageId !== 'string') {
         throw new SearchError('invalid message ID', new Error('Message ID is required and must be a string'));
@@ -507,6 +621,94 @@ class ConversationSearchServer {
     } catch (error) {
       this.logError(`Error listing tools: ${(error as Error).message}`, error);
       return getErrorResponse(error, 'List tools');
+    }
+  }
+
+  private async getConfigInfo() {
+    try {
+      const configInfo = {
+        database: {
+          path: this.config.dbPath || '~/.claude/conversation-search.db',
+          backupEnabled: this.config.dbBackupEnabled || false,
+          backupInterval: this.config.dbBackupInterval || 86400000,
+        },
+        indexing: {
+          projectsDir: this.config.projectsDir || '~/.claude/projects',
+          interval: this.config.indexInterval || 300000,
+          autoIndexing: this.config.autoIndexing !== false,
+          batchSize: this.config.indexBatchSize || 100,
+          fullTextMinLength: this.config.fullTextMinLength || 3,
+          threads: this.config.indexThreads || 1,
+        },
+        search: {
+          maxResults: this.config.maxResults || 20,
+          defaultContextSize: this.config.defaultContextSize || 2,
+          timeout: this.config.searchTimeout || 30000,
+        },
+        performance: {
+          maxMemoryMB: this.config.maxMemoryMB || 512,
+          cacheSize: this.config.cacheSize || 1000,
+        },
+        logging: {
+          debug: this.config.debug || false,
+          logLevel: this.config.logLevel || 'info',
+          logToFile: this.config.logToFile || false,
+          logFilePath: this.config.logFilePath || 'default',
+        },
+        security: {
+          allowedExtensions: this.config.allowedFileExtensions || ['.jsonl'],
+          maxFileSize: this.config.maxFileSize || 104857600,
+        },
+      };
+
+      const configSummary = [
+        '⚙️ **Current Configuration**',
+        '',
+        '**Database:**',
+        `• Path: ${configInfo.database.path}`,
+        `• Backup enabled: ${configInfo.database.backupEnabled}`,
+        '',
+        '**Indexing:**',
+        `• Projects directory: ${configInfo.indexing.projectsDir}`,
+        `• Auto-indexing: ${configInfo.indexing.autoIndexing}`,
+        `• Interval: ${(configInfo.indexing.interval / 1000 / 60).toFixed(1)} minutes`,
+        `• Batch size: ${configInfo.indexing.batchSize}`,
+        '',
+        '**Search:**',
+        `• Max results: ${configInfo.search.maxResults}`,
+        `• Default context: ${configInfo.search.defaultContextSize} messages`,
+        `• Timeout: ${(configInfo.search.timeout / 1000).toFixed(1)} seconds`,
+        '',
+        '**Performance:**',
+        `• Max memory: ${configInfo.performance.maxMemoryMB} MB`,
+        `• Cache size: ${configInfo.performance.cacheSize} results`,
+        '',
+        '**Logging:**',
+        `• Level: ${configInfo.logging.logLevel}`,
+        `• Debug: ${configInfo.logging.debug}`,
+        '',
+        '**Security:**',
+        `• Allowed extensions: ${configInfo.security.allowedExtensions.join(', ')}`,
+        `• Max file size: ${(configInfo.security.maxFileSize / 1024 / 1024).toFixed(1)} MB`,
+        '',
+        '📖 **For configuration help, see [Configuration Guide](docs/configuration.md)**'
+      ];
+
+      return {
+        content: [
+          {
+            type: 'text',
+            text: configSummary.join('\n'),
+          },
+          {
+            type: 'text',
+            text: `\n**Raw Configuration Object:**\n\`\`\`json\n${JSON.stringify(configInfo, null, 2)}\n\`\`\``,
+          },
+        ],
+      };
+    } catch (error) {
+      this.logError(`Error getting configuration info: ${(error as Error).message}`, error);
+      return getErrorResponse(error, 'Get configuration info');
     }
   }
 
