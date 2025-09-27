@@ -26,18 +26,32 @@
     "test:coverage": "jest --coverage",
     "test:performance": "jest tests/performance.test.ts --verbose --runInBand",
     "test:edge-cases": "jest tests/edge-cases.test.ts --verbose --runInBand",
+    "test:all": "npm run test && npm run test:performance && npm run test:edge-cases",
     "lint": "eslint src/**/*.ts",
-    "lint:fix": "eslint src/**/*.ts --fix"
+    "lint:fix": "eslint src/**/*.ts --fix",
+    "clean": "rm -rf lib/",
+    "prebuild": "npm run clean",
+    "prepublishOnly": "npm run build && npm run test:all",
+    "postinstall": "echo 'Thanks for installing claude-code-conversation-search-mcp! See examples/ for usage.'"
   },
   "keywords": [
     "mcp",
     "claude",
+    "claude-code",
     "search",
     "conversation",
     "history",
-    "model-context-protocol"
+    "model-context-protocol",
+    "anthropic",
+    "ai",
+    "assistant",
+    "chat-history",
+    "full-text-search",
+    "sqlite",
+    "typescript",
+    "nodejs"
   ],
-  "author": "Your Name <your.email@example.com>",
+  "author": "Tony Simonovsky <tonysimonovskiy@gmail.com>",
   "license": "MIT",
   "homepage": "https://github.com/TonySimonovsky/claude-code-conversation-search-mcp#readme",
   "repository": {
@@ -49,6 +63,15 @@
   },
   "engines": {
     "node": ">=18.0.0"
+  },
+  "os": [
+    "darwin",
+    "linux",
+    "win32"
+  ],
+  "preferGlobal": true,
+  "publishConfig": {
+    "access": "public"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.18.0",
