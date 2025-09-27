@@ -1,28 +1,34 @@
 # Claude Code Conversation Search MCP
 
-Finally, searchable Claude Code conversations across all projects.
+**Stop losing your Claude Code conversations.** Never again ask "where did we discuss that bug fix?" or lose hours of context when your terminal closes.
 
 ```bash
 npm install -g claude-code-conversation-search-mcp
 ```
 
-Query from any session:
+Find any conversation across all projects:
 ```bash
-"database migration setup"
-"authentication implementation" 
-"docker configuration issues"
+"where did we discuss the database issue?"
+"find that authentication conversation"
+"docker configuration we talked about yesterday"
 ```
 
-Get project, date, summary, and resume command.
+Get the exact project, date, and command to resume instantly.
+
+## Why You Need This
+
+**The Problem:** Claude Code has no conversation search. When you close a terminal or switch projects, finding that important discussion becomes impossible. You're left scrolling through cryptic conversation titles hoping to recognize the right one.
+
+**The Solution:** Search all your Claude Code conversations from any project session. Ask "where did we discuss authentication?" and instantly get the exact conversation with a resume command.
 
 ## Features
 
-- **Cross-project search**: Query conversations from any project while working in any other
-- **Instant resume**: Get exact `claude --resume` commands for found conversations
-- **Real-time indexing**: New conversations are immediately searchable
-- **Natural language queries**: Search like you think, not like a database
-- **SQLite FTS**: Fast full-text search across thousands of conversations
-- **Zero config**: Works with existing Claude Code setup out of the box
+- **Find lost conversations**: Never lose track of important discussions again
+- **Search across all projects**: Working in Project A but need info from Project B? Just search
+- **Resume instantly**: Get exact `claude --resume` commands to continue where you left off  
+- **Natural language**: Ask questions like you would a human - "find that Docker conversation"
+- **Lightning fast**: Search thousands of conversations in milliseconds
+- **Zero setup**: Install and it works immediately with your existing Claude Code
 
 ## Quick Start
 
@@ -43,27 +49,27 @@ Search across all projects while working in any project.
 ## Usage
 
 ```bash
-# Search by topic
-"how we implemented caching"
-"API rate limiting discussion"
-"deployment pipeline setup"
+# Find lost conversations
+"where did we discuss the login bug?"
+"find that Docker conversation"
+"database setup we talked about"
 
-# Search by technology
-"redis configuration"
-"postgres migration scripts"
-"nginx reverse proxy"
+# Search by what you remember
+"authentication error we fixed"
+"API endpoint discussion yesterday"
+"performance issue last week"
 
-# Search by problem/solution
-"memory leak debugging"
-"performance optimization"
-"error handling patterns"
+# Find solutions from other projects  
+"how did we solve CORS issues?"
+"Redis configuration that worked"
+"deployment script we wrote"
 ```
 
-Each result includes:
-- Project name and path
-- Conversation date
-- Context summary  
-- Ready-to-use resume command
+Every search gives you:
+- **Which project** the conversation was in
+- **When it happened** (date and time)
+- **What you discussed** (conversation summary)
+- **Exact command** to resume: `cd '/path/to/project' && claude --resume abc123`
 
 ## Technical
 

@@ -2,7 +2,7 @@
   "name": "claude-code-conversation-search-mcp",
   "version": "1.1.1",
   "type": "module",
-  "description": "MCP server for searching Claude Code conversation history across all projects. Find and resume any discussion instantly.",
+  "description": "Never lose your Claude Code conversations again. Search across all projects, find old chats, and resume where you left off.",
   "main": "lib/index.js",
   "bin": {
     "claude-code-conversation-search": "./bin/claude-code-conversation-search"
@@ -54,7 +54,14 @@
     "session-search",
     "multi-project",
     "conversation-resume",
-    "context-search"
+    "context-search",
+    "lost-conversation",
+    "find-old-chat",
+    "conversation-disappeared",
+    "resume-conversation",
+    "chat-history-viewer",
+    "conversation-browser",
+    "browse-conversations"
   ],
   "author": "Tony Simonovsky <tonysimonovskiy@gmail.com>",
   "license": "MIT",
