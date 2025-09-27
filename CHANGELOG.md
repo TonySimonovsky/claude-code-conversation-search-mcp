@@ -8,13 +8,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- ESLint configuration with TypeScript support for code quality
+- Lint scripts (`npm run lint`, `npm run lint:fix`) in package.json
 - Comprehensive documentation with installation and usage examples
 - Configuration options via environment variables
 - MIT License
 
 ### Changed
+- Set package.json type to "module" for ES6 import support
 - Improved error handling with user-friendly messages
 - Enhanced README with troubleshooting section
+
+### Fixed
+- Removed unused variables to improve code quality
 
 ## [1.0.0] - 2025-01-15
 
@@ -38,5 +44,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Chokidar for file watching
 - MCP SDK integration
 
-[Unreleased]: https://github.com/yourusername/claude-conversation-search-mcp/compare/v1.0.0...HEAD
-[1.0.0]: https://github.com/yourusername/claude-conversation-search-mcp/releases/tag/v1.0.0
+[Unreleased]: https://github.com/TonySimonovsky/claude-code-conversation-search-mcp/compare/v1.0.0...HEAD
+[1.0.0]: https://github.com/TonySimonovsky/claude-code-conversation-search-mcp/releases/tag/v1.0.0
