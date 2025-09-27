@@ -32,7 +32,11 @@
     "clean": "rm -rf lib/",
     "prebuild": "npm run clean",
     "prepublishOnly": "npm run build && npm run test:all",
-    "postinstall": "echo 'Thanks for installing claude-code-conversation-search-mcp! See examples/ for usage.'"
+    "postinstall": "echo 'Thanks for installing claude-code-conversation-search-mcp! See examples/ for usage.'",
+    "pkg:build": "npm run build && pkg bin/pkg-entry.js --targets node18-linux-x64,node18-macos-x64,node18-win-x64 --out-path dist/",
+    "pkg:linux": "npm run build && pkg bin/pkg-entry.js --targets node18-linux-x64 --out-path dist/",
+    "pkg:macos": "npm run build && pkg bin/pkg-entry.js --targets node18-macos-x64 --out-path dist/",
+    "pkg:windows": "npm run build && pkg bin/pkg-entry.js --targets node18-win-x64 --out-path dist/"
   },
   "keywords": [
     "mcp",
@@ -85,6 +89,14 @@
   "publishConfig": {
     "access": "public"
   },
+  "pkg": {
+    "scripts": "bin/pkg-entry.js",
+    "assets": [
+      "lib/**/*.js",
+      "node_modules/better-sqlite3/**/*"
+    ],
+    "outputPath": "dist/"
+  },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.18.0",
     "@types/better-sqlite3": "^7.6.13",
@@ -100,6 +112,7 @@
     "@typescript-eslint/parser": "^8.44.1",
     "eslint": "^9.36.0",
     "jest": "^30.1.3",
+    "pkg": "^5.8.1",
     "ts-jest": "^29.4.4"
   }
 }
