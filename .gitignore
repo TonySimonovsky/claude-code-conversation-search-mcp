@@ -68,6 +68,9 @@ final-*.js
 claude_mcp_config.json
 .claude/
 
+# Development documentation
+docs/development/
+
 # OS files
 .DS_Store
 .DS_Store?
