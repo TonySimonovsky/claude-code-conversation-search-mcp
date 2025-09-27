@@ -11,6 +11,7 @@ import { ConversationIndexer } from './indexer/indexer';
 import { QueryParser } from './search/query';
 import { ResultFormatter } from './search/result-formatter';
 import { SearchOptions, SearchResult } from './types';
+import { createUserFriendlyError, getErrorResponse, ConfigurationError, SearchError, IndexingError } from './utils/errors';
 import * as path from 'path';
 import * as os from 'os';
 
@@ -31,10 +32,10 @@ class ConversationSearchServer {
   private indexingTimer?: NodeJS.Timeout;
 
   constructor() {
-    this.config = this.loadConfig();
-    this.setupLogging();
-    
     try {
+      this.config = this.loadConfig();
+      this.setupLogging();
+      
       const projectsPath = this.resolveHome(this.config.projectsDir || '~/.claude/projects');
       const dbPath = this.resolveHome(this.config.dbPath || '~/.claude/conversation-search.db');
       
@@ -57,18 +58,29 @@ class ConversationSearchServer {
       this.log('Server initialized successfully');
     } catch (error) {
       this.logError('Failed to initialize server', error);
-      throw error;
+      throw createUserFriendlyError(error, 'Failed to initialize conversation search server. Check configuration and file permissions.');
     }
   }
 
   private loadConfig(): ServerConfig {
-    return {
+    const config = {
       dbPath: process.env.CONVERSATION_DB_PATH,
       projectsDir: process.env.CLAUDE_PROJECTS_DIR,
       indexInterval: process.env.INDEX_INTERVAL ? parseInt(process.env.INDEX_INTERVAL) : 300000,
       maxResults: process.env.MAX_RESULTS ? parseInt(process.env.MAX_RESULTS) : 20,
       debug: process.env.DEBUG === 'true',
     };
+
+    // Validate numeric configurations
+    if (config.indexInterval && (isNaN(config.indexInterval) || config.indexInterval < 0)) {
+      throw new ConfigurationError('INDEX_INTERVAL must be a positive number');
+    }
+    
+    if (config.maxResults && (isNaN(config.maxResults) || config.maxResults < 1 || config.maxResults > 1000)) {
+      throw new ConfigurationError('MAX_RESULTS must be between 1 and 1000');
+    }
+
+    return config;
   }
 
   private resolveHome(filePath: string): string {
@@ -263,7 +275,11 @@ class ConversationSearchServer {
       const { query, limit = 10, includeContext = true } = args;
       
       if (!query || typeof query !== 'string') {
-        throw new Error('Query parameter is required and must be a string');
+        throw new SearchError('empty query', new Error('Query parameter is required and must be a string'));
+      }
+
+      if (query.trim().length === 0) {
+        throw new SearchError('empty query', new Error('Search query cannot be empty'));
       }
       
       const effectiveLimit = Math.min(limit, this.config.maxResults || 20);
@@ -308,14 +324,7 @@ class ConversationSearchServer {
       };
     } catch (error) {
       this.logError(`Error searching conversations: ${(error as Error).message}`, error);
-      return {
-        content: [
-          {
-            type: 'text',
-            text: `❌ Search failed: ${(error as Error).message}\n\nPlease check your query and try again.`,
-          },
-        ],
-      };
+      return getErrorResponse(error, 'Search');
     }
   }
 
@@ -350,14 +359,7 @@ class ConversationSearchServer {
       };
     } catch (error) {
       this.logError(`Error listing projects: ${(error as Error).message}`, error);
-      return {
-        content: [
-          {
-            type: 'text',
-            text: `❌ Failed to list projects: ${(error as Error).message}`,
-          },
-        ],
-      };
+      return getErrorResponse(error, 'List projects');
     }
   }
 
@@ -366,7 +368,7 @@ class ConversationSearchServer {
       const { messageId, contextSize = 5 } = args;
       
       if (!messageId || typeof messageId !== 'string') {
-        throw new Error('Message ID is required and must be a string');
+        throw new SearchError('invalid message ID', new Error('Message ID is required and must be a string'));
       }
       
       // This would need to be implemented in the database class
@@ -381,14 +383,7 @@ class ConversationSearchServer {
       };
     } catch (error) {
       this.logError(`Error getting conversation context: ${(error as Error).message}`, error);
-      return {
-        content: [
-          {
-            type: 'text',
-            text: `❌ Failed to get context: ${(error as Error).message}`,
-          },
-        ],
-      };
+      return getErrorResponse(error, 'Get message context');
     }
   }
 
@@ -397,7 +392,7 @@ class ConversationSearchServer {
       const { conversationId, limit = 50, startFrom = 0 } = args;
       
       if (!conversationId || typeof conversationId !== 'string') {
-        throw new Error('Conversation ID is required and must be a string');
+        throw new SearchError('invalid conversation ID', new Error('Conversation ID is required and must be a string'));
       }
       
       const messages = this.indexer.getDatabase().getConversationMessages(conversationId, limit, startFrom);
@@ -444,14 +439,7 @@ class ConversationSearchServer {
       };
     } catch (error) {
       this.logError(`Error getting conversation messages: ${(error as Error).message}`, error);
-      return {
-        content: [
-          {
-            type: 'text',
-            text: `❌ Failed to get conversation messages: ${(error as Error).message}`,
-          },
-        ],
-      };
+      return getErrorResponse(error, 'Get conversation messages');
     }
   }
 
@@ -518,14 +506,7 @@ class ConversationSearchServer {
       };
     } catch (error) {
       this.logError(`Error listing tools: ${(error as Error).message}`, error);
-      return {
-        content: [
-          {
-            type: 'text',
-            text: `❌ Failed to list tools: ${(error as Error).message}`,
-          },
-        ],
-      };
+      return getErrorResponse(error, 'List tools');
     }
   }
 
@@ -547,14 +528,7 @@ class ConversationSearchServer {
       };
     } catch (error) {
       this.logError(`Error refreshing index: ${(error as Error).message}`, error);
-      return {
-        content: [
-          {
-            type: 'text',
-            text: `❌ Indexing failed: ${(error as Error).message}\n\nTry checking if ~/.claude/projects directory exists and contains conversation files.`,
-          },
-        ],
-      };
+      return getErrorResponse(error, 'Index refresh');
     }
   }
 

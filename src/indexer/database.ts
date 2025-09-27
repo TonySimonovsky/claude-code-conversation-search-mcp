@@ -181,8 +181,10 @@ export class ConversationDatabase {
 
       return rows.map(row => this.rowToSearchResult(row, options));
     } catch (error) {
-      console.error('Search error:', error);
-      return []; // Return empty results on error
+      if (process.env.DEBUG === 'true') {
+        console.error('[DATABASE] Search error:', error);
+      }
+      throw error; // Let the caller handle the error properly
     }
   }
 

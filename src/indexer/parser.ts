@@ -94,7 +94,10 @@ export class ConversationParser {
           const message = JSON.parse(line) as ConversationMessage;
           yield message;
         } catch (err) {
-          console.error(`Error parsing line in ${filePath}:`, err);
+          // Log but continue parsing other lines
+          if (process.env.DEBUG === 'true') {
+            console.error(`[PARSER] Failed to parse line in ${filePath}:`, err);
+          }
         }
       }
     }
@@ -116,7 +119,10 @@ export class ConversationParser {
             return message.sessionId;
           }
         } catch (err) {
-          console.error(`Error parsing first line in ${filePath}:`, err);
+          // Log but continue to next line
+          if (process.env.DEBUG === 'true') {
+            console.error(`[PARSER] Failed to parse session ID from ${filePath}:`, err);
+          }
         }
       }
     }
