@@ -43,7 +43,7 @@ class ConversationSearchServer {
       this.resultFormatter = new ResultFormatter();
       this.server = new Server(
         {
-          name: 'claude-conversation-search',
+          name: 'claude-code-conversation-search',
           version: '1.0.0',
         },
         {
