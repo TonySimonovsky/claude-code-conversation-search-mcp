@@ -1,4 +1,4 @@
-import { IndexedMessage, SearchOptions, SearchResult } from '../types';
+import { IndexedMessage, SearchOptions, SearchResult } from '../types/index.js';
 export declare class ConversationDatabase {
     private db;
     private dbPath;

@@ -1,4 +1,4 @@
-import { SearchOptions } from '../types';
+import { SearchOptions } from '../types/index.js';
 export declare class QueryParser {
     parseQuery(input: string): {
         searchQuery: string;

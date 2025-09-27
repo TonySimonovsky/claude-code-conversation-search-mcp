@@ -1,4 +1,4 @@
-import { ConversationDatabase } from './database';
+import { ConversationDatabase } from './database.js';
 export declare class ConversationIndexer {
     private parser;
     private db;

@@ -1,4 +1,4 @@
-import { ConversationMessage, IndexedMessage } from '../types';
+import { ConversationMessage, IndexedMessage } from '../types/index.js';
 export declare class ConversationParser {
     private projectsPath;
     constructor(projectsPath?: string);

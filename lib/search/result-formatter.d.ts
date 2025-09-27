@@ -1,4 +1,4 @@
-import { SearchResult } from '../types';
+import { SearchResult } from '../types/index.js';
 export interface ConversationResult {
     conversationId: string;
     projectPath: string;
