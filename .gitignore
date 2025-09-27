@@ -90,3 +90,5 @@ Desktop.ini
 !.yarn/releases
 !.yarn/sdks
 !.yarn/versions
+
+*/01-standards*
