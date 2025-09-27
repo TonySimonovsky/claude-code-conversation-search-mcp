@@ -1,6 +1,6 @@
 {
   "name": "claude-code-conversation-search-mcp",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "type": "module",
   "description": "Never lose your Claude Code conversations again. Search across all projects, find old chats, and resume where you left off.",
   "main": "lib/index.js",
