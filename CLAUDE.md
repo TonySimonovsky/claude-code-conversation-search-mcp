@@ -1,0 +1,1 @@
+- When asked to use conversation-search, you must start searching from very wide queries, narrowing down step by step.
