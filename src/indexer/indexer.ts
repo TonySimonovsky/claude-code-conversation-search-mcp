@@ -92,7 +92,6 @@ export class ConversationIndexer {
     const sessionId = await this.parser.getSessionIdFromFile(filePath);
     const conversationId = sessionId || path.basename(filePath, '.jsonl');
     const projectPath = path.dirname(filePath);
-    const projectName = path.basename(projectPath);
     let messageCount = 0;
 
     for await (const message of this.parser.parseConversationFile(filePath)) {
