@@ -1,10 +1,10 @@
 {
-  "name": "claude-conversation-search-mcp",
+  "name": "claude-code-conversation-search-mcp",
   "version": "1.0.0",
   "description": "MCP server for searching Claude Code conversation history with natural language queries",
   "main": "lib/index.js",
   "bin": {
-    "claude-conversation-search": "./bin/claude-conversation-search"
+    "claude-code-conversation-search": "./bin/claude-code-conversation-search"
   },
   "files": [
     "lib/",
@@ -30,13 +30,13 @@
   ],
   "author": "Your Name <your.email@example.com>",
   "license": "MIT",
-  "homepage": "https://github.com/yourusername/claude-conversation-search-mcp#readme",
+  "homepage": "https://github.com/TonySimonovsky/claude-code-conversation-search-mcp#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/yourusername/claude-conversation-search-mcp.git"
+    "url": "git+https://github.com/TonySimonovsky/claude-code-conversation-search-mcp.git"
   },
   "bugs": {
-    "url": "https://github.com/yourusername/claude-conversation-search-mcp/issues"
+    "url": "https://github.com/TonySimonovsky/claude-code-conversation-search-mcp/issues"
   },
   "engines": {
     "node": ">=18.0.0"
