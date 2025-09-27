@@ -7,11 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- GitHub Actions workflow for automated releases with standalone binaries
+- Cross-platform standalone binaries (Linux, macOS, Windows) using pkg
+- GitHub Releases documentation with installation and usage instructions
+- CommonJS wrapper for pkg compatibility with ES modules
+
 ### Changed
 - Enhanced package.json metadata for professional NPM publication
 - Added comprehensive keywords for better discoverability  
 - Added platform support indicators and Node.js engine requirements
 - Added helpful npm scripts for package management (clean, prebuild, prepublishOnly, postinstall, test:all)
+- Added pkg configuration and build scripts for standalone binary creation
 
 ## [1.1.0] - 2025-01-27
 
