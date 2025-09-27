@@ -1,0 +1,102 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            target: linux-x64
+            artifact: claude-code-conversation-search-linux
+          - os: macos-latest
+            target: macos-x64
+            artifact: claude-code-conversation-search-macos
+          - os: windows-latest
+            target: win-x64
+            artifact: claude-code-conversation-search-windows.exe
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        run: npm test
+
+      - name: Build TypeScript
+        run: npm run build
+
+      - name: Create standalone binary
+        run: |
+          npx pkg bin/pkg-entry.js --targets node18-${{ matrix.target }} --output ${{ matrix.artifact }}
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact }}
+          path: ${{ matrix.artifact }}*
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+
+      - name: Create Release
+        uses: ncipollo/create-release@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          name: Release ${{ github.ref_name }}
+          body: |
+            ## Claude Code Conversation Search MCP - ${{ github.ref_name }}
+            
+            Standalone binaries for multiple platforms. No Node.js installation required!
+            
+            ### Installation
+            
+            1. Download the appropriate binary for your platform
+            2. Make it executable: `chmod +x claude-code-conversation-search-*`
+            3. Add to your PATH or run directly
+            
+            ### Usage
+            
+            ```bash
+            # Start the MCP server
+            ./claude-code-conversation-search-linux
+            
+            # Or configure in Claude Code MCP settings
+            ```
+            
+            ### Platform Support
+            - Linux x64: `claude-code-conversation-search-linux`
+            - macOS x64: `claude-code-conversation-search-macos`
+            - Windows x64: `claude-code-conversation-search-windows.exe`
+            
+            For NPM installation: `npm install -g claude-code-conversation-search-mcp`
+          artifacts: |
+            claude-code-conversation-search-linux/claude-code-conversation-search-linux
+            claude-code-conversation-search-macos/claude-code-conversation-search-macos
+            claude-code-conversation-search-windows.exe/claude-code-conversation-search-windows.exe
+          draft: false
+          prerelease: false
