@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - `get_server_info` tool for retrieving server version, changelog, and system information
+- Comprehensive unit test suite with Jest framework (38 tests covering parser, database, and search)
+- Test scripts (`npm test`, `npm run test:watch`, `npm run test:coverage`) in package.json
 - ESLint configuration with TypeScript support for code quality
 - Lint scripts (`npm run lint`, `npm run lint:fix`) in package.json
 - Comprehensive documentation with installation and usage examples
@@ -24,7 +26,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - TypeScript compilation issues with ES module imports
-- Reduced ESLint warnings from 13 to 7 by improving type definitions
+- Reduced ESLint warnings by improving type definitions and removing unused variables
+- Better SQLite compatibility with proper type handling for database queries
 - Removed unused variables to improve code quality
 
 ## [1.0.0] - 2025-01-15
