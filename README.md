@@ -194,6 +194,16 @@ refresh_index()
 
 Useful after adding new projects or when auto-indexing is disabled.
 
+### Get Server Information
+
+Show server version, changelog, and system information:
+
+```
+get_server_info()
+```
+
+Displays current version, recent changes, system status, and available tools.
+
 ## Advanced Usage
 
 ### Complex Queries
