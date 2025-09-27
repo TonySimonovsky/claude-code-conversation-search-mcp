@@ -96,13 +96,19 @@ Edit `~/.config/Claude/claude_desktop_config.json`:
 
 ### Configuration Options
 
+The MCP server supports extensive configuration through environment variables. Here are the most commonly used options:
+
 | Environment Variable | Description | Default |
 |---------------------|-------------|---------|
 | `CONVERSATION_DB_PATH` | Path to SQLite database | `~/.claude/conversation-search.db` |
+| `CLAUDE_PROJECTS_DIR` | Path to Claude projects directory | `~/.claude/projects` |
 | `INDEX_INTERVAL` | Auto-index interval in milliseconds | `300000` (5 minutes) |
 | `MAX_RESULTS` | Maximum search results to return | `20` |
-| `CLAUDE_PROJECTS_DIR` | Path to Claude projects directory | `~/.claude/projects` |
+| `DEFAULT_CONTEXT_SIZE` | Default context messages before/after | `2` |
+| `AUTO_INDEXING` | Enable automatic indexing | `true` |
 | `DEBUG` | Enable debug logging | `false` |
+
+**📖 For complete configuration options and performance tuning, see [Configuration Guide](docs/configuration.md)**
 
 ## Usage
 
