@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - `get_server_info` tool for retrieving server version, changelog, and system information
 - Comprehensive unit test suite with Jest framework (38 tests covering parser, database, and search)
+- Integration test suite for MCP protocol compliance (17 tests covering server initialization, tool execution, error handling, data persistence, and protocol compliance)
 - Test scripts (`npm test`, `npm run test:watch`, `npm run test:coverage`) in package.json
 - ESLint configuration with TypeScript support for code quality
 - Lint scripts (`npm run lint`, `npm run lint:fix`) in package.json
@@ -23,6 +24,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Set package.json type to "module" for ES6 import support
 - Improved error handling with user-friendly messages
 - Enhanced README with troubleshooting section
+- Made ConversationSearchServer class exportable for testing
+- Improved get_server_info method compatibility with test environments
 
 ### Fixed
 - TypeScript compilation issues with ES module imports

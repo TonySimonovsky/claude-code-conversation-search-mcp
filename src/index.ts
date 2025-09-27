@@ -50,7 +50,7 @@ interface ServerConfig {
   indexThreads?: number;
 }
 
-class ConversationSearchServer {
+export class ConversationSearchServer {
   private server: Server;
   private indexer: ConversationIndexer;
   private queryParser: QueryParser;
@@ -58,9 +58,9 @@ class ConversationSearchServer {
   private config: ServerConfig;
   private indexingTimer?: NodeJS.Timeout;
 
-  constructor() {
+  constructor(testConfig?: Partial<ServerConfig>) {
     try {
-      this.config = this.loadConfig();
+      this.config = testConfig ? { ...this.loadConfig(), ...testConfig } : this.loadConfig();
       this.setupLogging();
       
       const projectsPath = this.resolveHome(this.config.projectsDir || '~/.claude/projects');
@@ -284,7 +284,7 @@ class ConversationSearchServer {
     });
   }
 
-  private getTools(): Tool[] {
+  public getTools(): Tool[] {
     return [
       {
         name: 'search_conversations',
@@ -394,6 +394,41 @@ class ConversationSearchServer {
         },
       },
     ];
+  }
+
+  public async callTool(name: string, args: any) {
+    switch (name) {
+      case 'search_conversations':
+        return await this.searchConversations(args);
+      
+      case 'list_projects':
+        return await this.listProjects();
+      
+      case 'get_message_context':
+        return await this.getMessageContext(args);
+      
+      case 'get_conversation_messages':
+        return await this.getConversationMessages(args);
+      
+      case 'refresh_index':
+        return await this.refreshIndex();
+      
+      case 'get_config_info':
+        return await this.getConfigInfo();
+      
+      case 'get_server_info':
+        return await this.getServerInfo();
+      
+      case 'list_tools':
+        return await this.listTools();
+      
+      default:
+        throw new Error(`Unknown tool: ${name}`);
+    }
+  }
+
+  public close() {
+    this.shutdown();
   }
 
   private async searchConversations(args: any) {
@@ -726,23 +761,25 @@ class ConversationSearchServer {
 
   private async getServerInfo() {
     try {
-      // Read package.json for version info
-      const packageJsonPath = path.resolve(path.dirname(new URL(import.meta.url).pathname), '../package.json');
-      let packageInfo: any = {};
+      // Default package info as fallback
+      let packageInfo: any = {
+        name: 'claude-code-conversation-search-mcp',
+        version: '1.0.0',
+        description: 'MCP server for searching Claude Code conversation history'
+      };
+
+      // Try to read package.json for version info
       try {
+        // Use process.cwd() as fallback that works in both environments
+        const packageJsonPath = path.resolve(process.cwd(), 'package.json');
         const packageContent = fs.readFileSync(packageJsonPath, 'utf8');
         packageInfo = JSON.parse(packageContent);
       } catch (error) {
-        // Fallback if we can't read package.json
-        packageInfo = {
-          name: 'claude-code-conversation-search-mcp',
-          version: '1.0.0',
-          description: 'MCP server for searching Claude Code conversation history'
-        };
+        // Use fallback package info
       }
 
       // Read recent changelog entries
-      const changelogPath = path.resolve(path.dirname(new URL(import.meta.url).pathname), '../CHANGELOG.md');
+      const changelogPath = path.resolve(process.cwd(), 'CHANGELOG.md');
       let latestChanges = 'No changelog available';
       try {
         const changelogContent = fs.readFileSync(changelogPath, 'utf8');
