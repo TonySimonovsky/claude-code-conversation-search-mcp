@@ -141,17 +141,42 @@ list_projects()
 
 Returns project names, message counts, and last activity dates.
 
-### Get Conversation Context
+### Get Message Context
 
 Retrieve full context around a specific message:
 
 ```
-get_conversation_context("msg_abc123", contextSize: 5)
+get_message_context("msg_abc123", contextSize: 5)
 ```
 
 **Parameters:**
 - `messageId` (required): The message ID to get context for
 - `contextSize` (optional): Number of messages before/after (default: 5)
+
+### Get Conversation Messages
+
+Retrieve messages from a specific conversation:
+
+```
+get_conversation_messages("conv_456", limit: 50, startFrom: 0)
+get_conversation_messages("conv_456", limit: 10, startFrom: -1)  # Last 10 messages
+get_conversation_messages("conv_456", limit: 20, startFrom: -10) # 20 messages starting from 10th from end
+```
+
+**Parameters:**
+- `conversationId` (required): The conversation ID to get messages from
+- `limit` (optional): Number of messages to return (default: 50)
+- `startFrom` (optional): Starting position - `0`=first, `-1`=last, `-10`=10th from end (default: 0)
+
+### List Tools
+
+Show all available tools with their signatures:
+
+```
+list_tools()
+```
+
+Returns automatically generated tool signatures and descriptions. Updates automatically when new tools are added.
 
 ### Refresh Index
 
