@@ -7,6 +7,7 @@ export declare class ConversationParser {
         projectName: string;
     }>;
     private decodeProjectName;
+    private intelligentDecode;
     parseConversationFile(filePath: string): AsyncGenerator<ConversationMessage>;
     getSessionIdFromFile(filePath: string): Promise<string | null>;
     extractSearchableContent(message: ConversationMessage): string;

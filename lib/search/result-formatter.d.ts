@@ -18,7 +18,6 @@ export declare class ResultFormatter {
         totalConversations: number;
     };
     private deduplicateMessages;
-    private decodeProjectPath;
     private truncateContent;
 }
 //# sourceMappingURL=result-formatter.d.ts.map

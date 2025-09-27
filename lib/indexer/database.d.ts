@@ -17,6 +17,7 @@ export declare class ConversationDatabase {
     updateIndexingMetadata(filePath: string, fileSize: number, messageCount: number): void;
     isFileIndexed(filePath: string, fileSize: number): boolean;
     clearProject(projectPath: string): void;
+    getConversationMessages(conversationId: string, limit: number, startFrom: number): IndexedMessage[];
     close(): void;
 }
 //# sourceMappingURL=database.d.ts.map
