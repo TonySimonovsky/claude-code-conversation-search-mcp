@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "conversation-search": {
+      "command": "claude-code-conversation-search",
+      "args": [],
+      "env": {
+        "CONVERSATION_DB_PATH": "~/.claude/conversation-search.db",
+        "CLAUDE_PROJECTS_DIR": "~/.claude/projects",
+        "DEBUG": "false"
+      }
+    }
+  }
+}

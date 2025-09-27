@@ -11,6 +11,8 @@
     "lib/",
     "bin/",
     "src/",
+    "examples/",
+    "docs-public/",
     "README.md",
     "LICENSE",
     "CHANGELOG.md"
