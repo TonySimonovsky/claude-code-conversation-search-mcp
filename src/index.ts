@@ -7,13 +7,14 @@ import {
   ListToolsRequestSchema,
   Tool,
 } from '@modelcontextprotocol/sdk/types.js';
-import { ConversationIndexer } from './indexer/indexer';
-import { QueryParser } from './search/query';
-import { ResultFormatter } from './search/result-formatter';
-import { SearchOptions, SearchResult } from './types';
-import { createUserFriendlyError, getErrorResponse, ConfigurationError, SearchError, IndexingError } from './utils/errors';
+import { ConversationIndexer } from './indexer/indexer.js';
+import { QueryParser } from './search/query.js';
+import { ResultFormatter } from './search/result-formatter.js';
+import { SearchOptions, SearchResult } from './types/index.js';
+import { createUserFriendlyError, getErrorResponse, ConfigurationError, SearchError, IndexingError } from './utils/errors.js';
 import * as path from 'path';
 import * as os from 'os';
+import * as fs from 'fs';
 
 interface ServerConfig {
   // Database configuration
@@ -271,6 +272,9 @@ class ConversationSearchServer {
         case 'get_config_info':
           return await this.getConfigInfo();
         
+        case 'get_server_info':
+          return await this.getServerInfo();
+        
         case 'list_tools':
           return await this.listTools();
         
@@ -368,6 +372,14 @@ class ConversationSearchServer {
       {
         name: 'get_config_info',
         description: 'Get current configuration settings and validation status',
+        inputSchema: {
+          type: 'object',
+          properties: {},
+        },
+      },
+      {
+        name: 'get_server_info',
+        description: 'Get server version, changelog, and system information',
         inputSchema: {
           type: 'object',
           properties: {},
@@ -709,6 +721,104 @@ class ConversationSearchServer {
     } catch (error) {
       this.logError(`Error getting configuration info: ${(error as Error).message}`, error);
       return getErrorResponse(error, 'Get configuration info');
+    }
+  }
+
+  private async getServerInfo() {
+    try {
+      // Read package.json for version info
+      const packageJsonPath = path.resolve(path.dirname(new URL(import.meta.url).pathname), '../package.json');
+      let packageInfo: any = {};
+      try {
+        const packageContent = fs.readFileSync(packageJsonPath, 'utf8');
+        packageInfo = JSON.parse(packageContent);
+      } catch (error) {
+        // Fallback if we can't read package.json
+        packageInfo = {
+          name: 'claude-code-conversation-search-mcp',
+          version: '1.0.0',
+          description: 'MCP server for searching Claude Code conversation history'
+        };
+      }
+
+      // Read recent changelog entries
+      const changelogPath = path.resolve(path.dirname(new URL(import.meta.url).pathname), '../CHANGELOG.md');
+      let latestChanges = 'No changelog available';
+      try {
+        const changelogContent = fs.readFileSync(changelogPath, 'utf8');
+        // Extract the unreleased section and latest version
+        const unreleasedMatch = changelogContent.match(/## \[Unreleased\](.*?)(?=\n## \[|$)/s);
+        const latestVersionMatch = changelogContent.match(/## \[(\d+\.\d+\.\d+)\] - (\d{4}-\d{2}-\d{2})(.*?)(?=\n## \[|$)/s);
+        
+        if (unreleasedMatch) {
+          latestChanges = '## [Unreleased]' + unreleasedMatch[1].trim();
+        } else if (latestVersionMatch) {
+          latestChanges = `## [${latestVersionMatch[1]}] - ${latestVersionMatch[2]}` + latestVersionMatch[3].trim();
+        }
+      } catch (error) {
+        // Fallback if we can't read changelog
+        latestChanges = 'Changelog not accessible';
+      }
+
+      // Get system information
+      const systemInfo = {
+        nodeVersion: process.version,
+        platform: process.platform,
+        architecture: process.arch,
+        memoryUsage: process.memoryUsage(),
+        uptime: Math.floor(process.uptime()),
+      };
+
+      const serverInfo = [
+        '🚀 **Claude Conversation Search MCP Server**',
+        '',
+        '**Version Information:**',
+        `• Package: ${packageInfo.name}`,
+        `• Version: ${packageInfo.version}`,
+        `• Description: ${packageInfo.description}`,
+        '',
+        '**System Information:**',
+        `• Node.js: ${systemInfo.nodeVersion}`,
+        `• Platform: ${systemInfo.platform} (${systemInfo.architecture})`,
+        `• Memory Usage: ${Math.round(systemInfo.memoryUsage.rss / 1024 / 1024)} MB RSS`,
+        `• Uptime: ${Math.floor(systemInfo.uptime / 60)} minutes`,
+        '',
+        '**Latest Changes:**',
+        '```markdown',
+        latestChanges,
+        '```',
+        '',
+        '**Available Tools:**',
+        `• ${this.getTools().length} tools available`,
+        `• Use \`list_tools()\` to see all available functionality`,
+        '',
+        '**Links:**',
+        `• Repository: ${packageInfo.repository?.url || 'https://github.com/TonySimonovsky/claude-code-conversation-search-mcp'}`,
+        `• Issues: ${packageInfo.bugs?.url || 'https://github.com/TonySimonovsky/claude-code-conversation-search-mcp/issues'}`,
+        `• Documentation: README.md and docs/`,
+        '',
+        '📖 **For help:** Use `get_config_info()` to check configuration or `list_tools()` to see available commands'
+      ];
+
+      return {
+        content: [
+          {
+            type: 'text',
+            text: serverInfo.join('\n'),
+          },
+          {
+            type: 'text',
+            text: `\n**Raw Server Metadata:**\n\`\`\`json\n${JSON.stringify({
+              package: packageInfo,
+              system: systemInfo,
+              tools: this.getTools().map(tool => ({ name: tool.name, description: tool.description }))
+            }, null, 2)}\n\`\`\``,
+          },
+        ],
+      };
+    } catch (error) {
+      this.logError(`Error getting server info: ${(error as Error).message}`, error);
+      return getErrorResponse(error, 'Get server info');
     }
   }
 

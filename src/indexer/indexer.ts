@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import { ConversationParser } from './parser';
-import { ConversationDatabase } from './database';
+import { ConversationParser } from './parser.js';
+import { ConversationDatabase } from './database.js';
 
 export class ConversationIndexer {
   private parser: ConversationParser;

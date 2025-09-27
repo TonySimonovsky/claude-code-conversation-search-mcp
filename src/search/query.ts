@@ -1,4 +1,4 @@
-import { SearchOptions } from '../types';
+import { SearchOptions } from '../types/index.js';
 
 export class QueryParser {
   parseQuery(input: string): { searchQuery: string; filters: Partial<SearchOptions> } {

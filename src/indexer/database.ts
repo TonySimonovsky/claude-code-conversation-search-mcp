@@ -1,7 +1,7 @@
 import Database from 'better-sqlite3';
 import * as path from 'path';
 import * as fs from 'fs';
-import { IndexedMessage, SearchOptions, SearchResult } from '../types';
+import { IndexedMessage, SearchOptions, SearchResult } from '../types/index.js';
 
 export class ConversationDatabase {
   private db: Database.Database;
@@ -182,6 +182,7 @@ export class ConversationDatabase {
       return rows.map(row => this.rowToSearchResult(row, options));
     } catch (error) {
       if (process.env.DEBUG === 'true') {
+        // eslint-disable-next-line no-console
         console.error('[DATABASE] Search error:', error);
       }
       throw error; // Let the caller handle the error properly

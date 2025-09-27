@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import * as readline from 'readline';
-import { ConversationMessage, IndexedMessage } from '../types';
+import { ConversationMessage, IndexedMessage } from '../types/index.js';
 
 export class ConversationParser {
   private projectsPath: string;
@@ -96,6 +96,7 @@ export class ConversationParser {
         } catch (err) {
           // Log but continue parsing other lines
           if (process.env.DEBUG === 'true') {
+            // eslint-disable-next-line no-console
             console.error(`[PARSER] Failed to parse line in ${filePath}:`, err);
           }
         }
@@ -121,6 +122,7 @@ export class ConversationParser {
         } catch (err) {
           // Log but continue to next line
           if (process.env.DEBUG === 'true') {
+            // eslint-disable-next-line no-console
             console.error(`[PARSER] Failed to parse session ID from ${filePath}:`, err);
           }
         }
@@ -149,11 +151,14 @@ export class ConversationParser {
 
     // Extract tool use results
     if (message.toolUseResult) {
-      if (message.toolUseResult.stdout) {
-        parts.push(message.toolUseResult.stdout);
-      }
-      if (message.toolUseResult.stderr) {
-        parts.push(message.toolUseResult.stderr);
+      if (typeof message.toolUseResult === 'object' && message.toolUseResult !== null) {
+        const result = message.toolUseResult as { stdout?: string; stderr?: string };
+        if (result.stdout) {
+          parts.push(result.stdout);
+        }
+        if (result.stderr) {
+          parts.push(result.stderr);
+        }
       }
       if (typeof message.toolUseResult === 'string') {
         parts.push(message.toolUseResult);

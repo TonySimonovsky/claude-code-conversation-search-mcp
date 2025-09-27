@@ -9,12 +9,12 @@ export interface ConversationMessage {
   type: 'user' | 'assistant';
   message?: {
     role: string;
-    content: any;
+    content: unknown;
     id?: string;
     type?: string;
     model?: string;
   };
-  toolUseResult?: any;
+  toolUseResult?: unknown;
   uuid: string;
   timestamp: string;
   isMeta?: boolean;
@@ -28,7 +28,7 @@ export interface IndexedMessage {
   timestamp: Date;
   type: 'user' | 'assistant' | 'tool_use' | 'tool_result';
   content: string;
-  rawContent: any;
+  rawContent: unknown;
   toolOperations?: {
     type: string;
     filePaths?: string[];
