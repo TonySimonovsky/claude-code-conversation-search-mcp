@@ -33,7 +33,52 @@ export class ConversationParser {
 
   private decodeProjectName(encodedName: string): string {
     // Convert encoded project name back to readable path
-    return encodedName.replace(/-/g, '/').replace(/^\//, '');
+    // Use the same intelligent decoding logic as result-formatter
+    const decodedPath = this.intelligentDecode(encodedName);
+    return decodedPath.replace(/^\//, ''); // Remove leading slash if present
+  }
+  
+  private intelligentDecode(encodedPath: string): string {
+    // Handle the leading -Users- pattern first
+    let decodedPath = encodedPath.replace(/^-Users-/, '/Users/');
+    
+    // Apply specific pattern replacements in careful order (most specific first)
+    const replacements: Array<[RegExp, string]> = [
+      // Handle full compound paths first
+      [/-claude-mcp-servers-conversation-search$/gi, '/claude-mcp-servers/conversation-search'],
+      
+      // Specific domain patterns
+      [/-ai-value-to-/gi, '/ai.value.to/'],
+      
+      // Common folder names with proper capitalization
+      [/-dropbox-/gi, '/Dropbox/'],
+      
+      // Handle numbered folders: convert to path first, then handle spaces
+      [/-(\d{2})-([a-z]+)-/gi, '/$1-$2/'], // Convert to path segment first
+      
+      // Convert remaining dashes to slashes
+      [/-/g, '/'],
+      
+      // Now handle spaces in numbered folders after path conversion
+      [/\/(\d{2})-([a-z]+)\//gi, '/$1 $2/'] // "04-clients" -> "04 clients" 
+    ];
+    
+    // Apply replacements in order
+    for (const [pattern, replacement] of replacements) {
+      decodedPath = decodedPath.replace(pattern, replacement);
+    }
+    
+    // Handle selective capitalization separately
+    decodedPath = decodedPath.replace(/\/([a-z]+)\//gi, (match: string, word: string) => {
+      // Only capitalize specific known folder names, not everything
+      const shouldCapitalize = ['clients', 'dropbox'].includes(word.toLowerCase());
+      return shouldCapitalize ? `/${word.charAt(0).toUpperCase() + word.slice(1)}/` : match;
+    });
+    
+    // Clean up double slashes
+    decodedPath = decodedPath.replace(/\/+/g, '/');
+    
+    return decodedPath;
   }
 
   async *parseConversationFile(filePath: string): AsyncGenerator<ConversationMessage> {

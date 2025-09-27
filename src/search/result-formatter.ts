@@ -19,35 +19,39 @@ export class ResultFormatter {
     totalMatches: number;
     totalConversations: number;
   } {
-    // Group results by conversation ID
+    // Group results by conversation ID + project path to handle duplicate conversation IDs across projects
     const conversationMap = new Map<string, SearchResult[]>();
     
     results.forEach(result => {
-      const convId = result.message.conversationId;
-      if (!conversationMap.has(convId)) {
-        conversationMap.set(convId, []);
+      const convKey = `${result.message.conversationId}:${result.message.projectPath}`;
+      if (!conversationMap.has(convKey)) {
+        conversationMap.set(convKey, []);
       }
-      conversationMap.get(convId)!.push(result);
+      conversationMap.get(convKey)!.push(result);
     });
 
     // Format each conversation group
     const conversations: ConversationResult[] = [];
     
-    for (const [convId, convResults] of conversationMap.entries()) {
+    for (const [convKey, convResults] of conversationMap.entries()) {
       // Sort messages within conversation by timestamp
       convResults.sort((a, b) => a.message.timestamp.getTime() - b.message.timestamp.getTime());
       
       const firstResult = convResults[0];
-      const projectPath = this.decodeProjectPath(firstResult.message.projectPath);
+      // Extract actual conversation ID from the composite key
+      const actualConvId = convKey.split(':')[0];
+      // projectPath should already be decoded and stored properly in the database
+      const projectPath = firstResult.message.projectPath;
+      const projectName = firstResult.message.projectName;
       
       // Get unique messages (deduplicate by content hash)
       const uniqueMessages = this.deduplicateMessages(convResults);
       
       conversations.push({
-        conversationId: convId,
+        conversationId: actualConvId,
         projectPath: projectPath,
-        projectName: firstResult.message.projectName,
-        resumeCommand: `cd '${projectPath}' && claude --resume ${convId}`,
+        projectName: projectName,
+        resumeCommand: `cd '${projectPath}' && claude --resume ${actualConvId}`,
         messages: uniqueMessages.slice(0, 5).map(result => ({
           timestamp: result.message.timestamp.toISOString(),
           type: result.message.type,
@@ -84,17 +88,6 @@ export class ResultFormatter {
     });
     
     return Array.from(seen.values());
-  }
-  
-  private decodeProjectPath(encodedPath: string): string {
-    // First, handle the encoded format from the database
-    const decodedPath = encodedPath
-      .replace(/^-Users-/, '/Users/')
-      .replace(/-/g, '/')
-      .toLowerCase();
-    
-    // Clean up any double slashes or artifacts
-    return decodedPath.replace(/\/+/g, '/');
   }
   
   private truncateContent(content: string, maxLength: number): string {

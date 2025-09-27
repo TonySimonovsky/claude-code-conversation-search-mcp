@@ -43,11 +43,15 @@ export class ConversationIndexer {
         let messageCount = 0;
 
         for await (const message of this.parser.parseConversationFile(filePath)) {
+          // Use the actual project path from the message cwd if available, fallback to filesystem path
+          const actualProjectPath = (message.cwd && message.cwd.trim()) ? message.cwd : projectPath;
+          const actualProjectName = path.basename(actualProjectPath);
+          
           const indexedMessage = this.parser.convertToIndexedMessage(
             message,
             conversationId,
-            projectPath,
-            projectName
+            actualProjectPath,
+            actualProjectName
           );
 
           if (indexedMessage) {
@@ -61,14 +65,14 @@ export class ConversationIndexer {
         filesIndexed++;
         progressCallback?.(`Indexed ${messageCount} messages from ${path.basename(filePath)}`);
         } catch (fileError) {
-          progressCallback?.(`⚠️ Failed to index ${path.basename(filePath)}: ${fileError.message}`);
+          progressCallback?.(`⚠️ Failed to index ${path.basename(filePath)}: ${(fileError as Error).message}`);
           // Continue with other files
         }
       }
 
       progressCallback?.(`Indexing complete! Indexed ${totalMessagesIndexed} messages from ${filesIndexed} files`);
     } catch (error) {
-      progressCallback?.(`❌ Indexing failed: ${error.message}`);
+      progressCallback?.(`❌ Indexing failed: ${(error as Error).message}`);
       throw error;
     } finally {
       this.isIndexing = false;
@@ -92,11 +96,15 @@ export class ConversationIndexer {
     let messageCount = 0;
 
     for await (const message of this.parser.parseConversationFile(filePath)) {
+      // Use the actual project path from the message cwd if available, fallback to filesystem path
+      const actualProjectPath = (message.cwd && message.cwd.trim()) ? message.cwd : projectPath;
+      const actualProjectName = path.basename(actualProjectPath);
+      
       const indexedMessage = this.parser.convertToIndexedMessage(
         message,
         conversationId,
-        projectPath,
-        projectName
+        actualProjectPath,
+        actualProjectName
       );
 
       if (indexedMessage) {
@@ -108,7 +116,7 @@ export class ConversationIndexer {
       this.db.updateIndexingMetadata(filePath, stats.size, messageCount);
       return messageCount;
     } catch (error) {
-      throw new Error(`Failed to index file ${filePath}: ${error.message}`);
+      throw new Error(`Failed to index file ${filePath}: ${(error as Error).message}`);
     }
   }
 

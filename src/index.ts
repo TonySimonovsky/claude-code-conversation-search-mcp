@@ -144,11 +144,17 @@ class ConversationSearchServer {
         case 'list_projects':
           return await this.listProjects();
         
-        case 'get_conversation_context':
-          return await this.getConversationContext(args);
+        case 'get_message_context':
+          return await this.getMessageContext(args);
+        
+        case 'get_conversation_messages':
+          return await this.getConversationMessages(args);
         
         case 'refresh_index':
           return await this.refreshIndex();
+        
+        case 'list_tools':
+          return await this.listTools();
         
         default:
           throw new Error(`Unknown tool: ${name}`);
@@ -191,7 +197,7 @@ class ConversationSearchServer {
         },
       },
       {
-        name: 'get_conversation_context',
+        name: 'get_message_context',
         description: 'Get full context around a specific message',
         inputSchema: {
           type: 'object',
@@ -210,8 +216,40 @@ class ConversationSearchServer {
         },
       },
       {
+        name: 'get_conversation_messages',
+        description: 'Get messages from a specific conversation',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            conversationId: {
+              type: 'string',
+              description: 'The conversation ID to get messages from',
+            },
+            limit: {
+              type: 'number',
+              description: 'Number of messages to return (default: 50)',
+              default: 50,
+            },
+            startFrom: {
+              type: 'number',
+              description: 'Starting position: 0=first, -1=last, -10=10th from end, etc. (default: 0)',
+              default: 0,
+            },
+          },
+          required: ['conversationId'],
+        },
+      },
+      {
         name: 'refresh_index',
         description: 'Manually refresh the conversation index',
+        inputSchema: {
+          type: 'object',
+          properties: {},
+        },
+      },
+      {
+        name: 'list_tools',
+        description: 'List all available tools with their signatures and descriptions',
         inputSchema: {
           type: 'object',
           properties: {},
@@ -269,12 +307,12 @@ class ConversationSearchServer {
         ],
       };
     } catch (error) {
-      this.logError(`Error searching conversations: ${error.message}`, error);
+      this.logError(`Error searching conversations: ${(error as Error).message}`, error);
       return {
         content: [
           {
             type: 'text',
-            text: `❌ Search failed: ${error.message}\n\nPlease check your query and try again.`,
+            text: `❌ Search failed: ${(error as Error).message}\n\nPlease check your query and try again.`,
           },
         ],
       };
@@ -311,19 +349,19 @@ class ConversationSearchServer {
         ],
       };
     } catch (error) {
-      this.logError(`Error listing projects: ${error.message}`, error);
+      this.logError(`Error listing projects: ${(error as Error).message}`, error);
       return {
         content: [
           {
             type: 'text',
-            text: `❌ Failed to list projects: ${error.message}`,
+            text: `❌ Failed to list projects: ${(error as Error).message}`,
           },
         ],
       };
     }
   }
 
-  private async getConversationContext(args: any) {
+  private async getMessageContext(args: any) {
     try {
       const { messageId, contextSize = 5 } = args;
       
@@ -342,12 +380,149 @@ class ConversationSearchServer {
         ],
       };
     } catch (error) {
-      this.logError(`Error getting conversation context: ${error.message}`, error);
+      this.logError(`Error getting conversation context: ${(error as Error).message}`, error);
       return {
         content: [
           {
             type: 'text',
-            text: `❌ Failed to get context: ${error.message}`,
+            text: `❌ Failed to get context: ${(error as Error).message}`,
+          },
+        ],
+      };
+    }
+  }
+
+  private async getConversationMessages(args: any) {
+    try {
+      const { conversationId, limit = 50, startFrom = 0 } = args;
+      
+      if (!conversationId || typeof conversationId !== 'string') {
+        throw new Error('Conversation ID is required and must be a string');
+      }
+      
+      const messages = this.indexer.getDatabase().getConversationMessages(conversationId, limit, startFrom);
+      
+      if (messages.length === 0) {
+        return {
+          content: [
+            {
+              type: 'text',
+              text: `No messages found for conversation ID: ${conversationId}`,
+            },
+          ],
+        };
+      }
+      
+      const output = {
+        conversationId,
+        messageCount: messages.length,
+        startFrom,
+        limit,
+        messages: messages.map(msg => ({
+          id: msg.id,
+          timestamp: msg.timestamp,
+          type: msg.type,
+          content: msg.content,
+          messageUuid: msg.messageUuid,
+          parentUuid: msg.parentUuid,
+          projectPath: msg.projectPath,
+          projectName: msg.projectName
+        }))
+      };
+      
+      return {
+        content: [
+          {
+            type: 'text',
+            text: `Found ${messages.length} messages in conversation ${conversationId}`,
+          },
+          {
+            type: 'text',
+            text: JSON.stringify(output, null, 2),
+          },
+        ],
+      };
+    } catch (error) {
+      this.logError(`Error getting conversation messages: ${(error as Error).message}`, error);
+      return {
+        content: [
+          {
+            type: 'text',
+            text: `❌ Failed to get conversation messages: ${(error as Error).message}`,
+          },
+        ],
+      };
+    }
+  }
+
+  private async listTools() {
+    try {
+      const tools = this.getTools();
+      
+      const toolSignatures = tools.map(tool => {
+        const params = tool.inputSchema?.properties || {};
+        const required = (tool.inputSchema as any)?.required || [];
+        
+        // Build parameter signature string
+        const paramStrings = Object.entries(params).map(([name, schema]: [string, any]) => {
+          const isRequired = required.includes(name);
+          const type = schema.type || 'any';
+          const defaultValue = schema.default !== undefined ? ` = ${JSON.stringify(schema.default)}` : '';
+          const optional = isRequired ? '' : '?';
+          
+          return `${name}${optional}: ${type}${defaultValue}`;
+        });
+        
+        const signature = `${tool.name}(${paramStrings.length > 0 ? `{ ${paramStrings.join(', ')} }` : ''})`;
+        
+        return {
+          name: tool.name,
+          signature,
+          description: tool.description,
+          parameters: Object.entries(params).map(([name, schema]: [string, any]) => ({
+            name,
+            type: schema.type || 'any',
+            required: required.includes(name),
+            default: schema.default,
+            description: schema.description
+          }))
+        };
+      });
+      
+      const output = {
+        totalTools: tools.length,
+        tools: toolSignatures
+      };
+      
+      return {
+        content: [
+          {
+            type: 'text',
+            text: `Available tools (${tools.length} total):`,
+          },
+          {
+            type: 'text',
+            text: toolSignatures.map(tool => 
+              `• ${tool.signature}\n  ${tool.description}`
+            ).join('\n\n'),
+          },
+          {
+            type: 'text',
+            text: '\nDetailed tool information:',
+          },
+          {
+            type: 'text',
+            text: JSON.stringify(output, null, 2),
+          },
+        ],
+      };
+    } catch (error) {
+      this.logError(`Error listing tools: ${(error as Error).message}`, error);
+      return {
+        content: [
+          {
+            type: 'text',
+            text: `❌ Failed to list tools: ${(error as Error).message}`,
           },
         ],
       };
@@ -371,12 +546,12 @@ class ConversationSearchServer {
         ],
       };
     } catch (error) {
-      this.logError(`Error refreshing index: ${error.message}`, error);
+      this.logError(`Error refreshing index: ${(error as Error).message}`, error);
       return {
         content: [
           {
             type: 'text',
-            text: `❌ Indexing failed: ${error.message}\n\nTry checking if ~/.claude/projects directory exists and contains conversation files.`,
+            text: `❌ Indexing failed: ${(error as Error).message}\n\nTry checking if ~/.claude/projects directory exists and contains conversation files.`,
           },
         ],
       };

@@ -97,7 +97,8 @@ export class QueryParser {
   }
 
   private normalizeProjectPath(projectRef: string): string {
-    // Handle common project name patterns
+    // Handle common project name patterns for searching
+    // This should match against the stored encoded paths in database
     // Examples: "talking-to-ai", "talking_to_ai", "talking", "bookeus"
     
     // Remove quotes if present
@@ -106,7 +107,11 @@ export class QueryParser {
     // Convert spaces to hyphens (common in encoded paths)
     projectRef = projectRef.replace(/\s+/g, '-');
     
-    // Make it case-insensitive by converting to lowercase
+    // Convert dots to hyphens (as they would be encoded)
+    projectRef = projectRef.replace(/\./g, '-');
+    
+    // Make it case-insensitive by converting to lowercase for search matching
+    // This is for search purposes only, not for decoding paths
     projectRef = projectRef.toLowerCase();
     
     return projectRef;

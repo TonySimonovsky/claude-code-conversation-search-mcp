@@ -8,9 +8,9 @@ export class ConversationDatabase {
   private dbPath: string;
 
   constructor(dbPath?: string) {
+    this.dbPath = dbPath || path.join(process.env.HOME || process.env.USERPROFILE || '.', '.claude', 'conversation-search.db');
+    
     try {
-      this.dbPath = dbPath || path.join(process.env.HOME || process.env.USERPROFILE || '.', '.claude', 'conversation-search.db');
-      
       // Ensure directory exists
       const dir = path.dirname(this.dbPath);
       if (!fs.existsSync(dir)) {
@@ -20,7 +20,7 @@ export class ConversationDatabase {
       this.db = new Database(this.dbPath);
       this.initialize();
     } catch (error) {
-      throw new Error(`Failed to initialize database at ${this.dbPath}: ${error.message}`);
+      throw new Error(`Failed to initialize database at ${this.dbPath}: ${(error as Error).message}`);
     }
   }
 
@@ -107,7 +107,7 @@ export class ConversationDatabase {
       message.parentUuid
     );
     } catch (error) {
-      throw new Error(`Failed to insert message ${message.id}: ${error.message}`);
+      throw new Error(`Failed to insert message ${message.id}: ${(error as Error).message}`);
     }
   }
 
@@ -297,6 +297,39 @@ export class ConversationDatabase {
   clearProject(projectPath: string): void {
     const stmt = this.db.prepare('DELETE FROM messages WHERE project_path = ?');
     stmt.run(projectPath);
+  }
+
+  getConversationMessages(conversationId: string, limit: number, startFrom: number): IndexedMessage[] {
+    let query: string;
+    let params: any[];
+
+    if (startFrom >= 0) {
+      // Start from beginning or specific position
+      query = `
+        SELECT * FROM messages
+        WHERE conversation_id = ?
+        ORDER BY timestamp ASC
+        LIMIT ? OFFSET ?
+      `;
+      params = [conversationId, limit, startFrom];
+    } else {
+      // Start from end (negative values)
+      const offset = Math.abs(startFrom) - 1;
+      query = `
+        SELECT * FROM (
+          SELECT * FROM messages
+          WHERE conversation_id = ?
+          ORDER BY timestamp DESC
+          LIMIT ? OFFSET ?
+        ) ORDER BY timestamp ASC
+      `;
+      params = [conversationId, limit, offset];
+    }
+
+    const stmt = this.db.prepare(query);
+    const rows = stmt.all(...params);
+
+    return rows.map(row => this.rowToIndexedMessage(row));
   }
 
   close(): void {
