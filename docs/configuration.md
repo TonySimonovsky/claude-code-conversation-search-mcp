@@ -4,7 +4,34 @@ This document describes all available configuration options for the Claude Conve
 
 ## Configuration Overview
 
-The server is configured via environment variables that can be set in your MCP server configuration file (`claude_desktop_config.json`) or through your shell environment.
+The server is configured via environment variables that can be set in your Claude Code MCP configuration files or through your shell environment.
+
+## Configuration File Locations
+
+Claude Code supports MCP configuration in these locations:
+
+**Global Configuration (All Projects):**
+```bash
+~/.claude.json    # Global config file
+```
+
+**Project-Specific Configuration (Team Shared):**
+```bash
+.mcp.json         # In your project root directory
+```
+
+**Editing Configuration Files:**
+
+```bash
+# Edit global configuration
+nano ~/.claude.json
+# Or: code ~/.claude.json
+# Or: vi ~/.claude.json
+
+# Edit project configuration (creates if not exists)
+nano .mcp.json
+# Or: code .mcp.json
+```
 
 ## Database Configuration
 
@@ -150,14 +177,16 @@ The server is configured via environment variables that can be set in your MCP s
 
 ## Complete Configuration Example
 
-Here's a complete example of how to configure the MCP server in your `claude_desktop_config.json`:
+Here's a complete example of how to configure the MCP server in your Claude Code configuration:
+
+**Option 1: Global configuration** (all projects) - Edit `~/.claude.json`:
 
 ```json
 {
   "mcpServers": {
     "conversation-search": {
-      "command": "npx",
-      "args": ["claude-code-conversation-search-mcp"],
+      "command": "claude-code-conversation-search-mcp",
+      "args": [],
       "env": {
         "CONVERSATION_DB_PATH": "~/.claude/conversation-search.db",
         "CLAUDE_PROJECTS_DIR": "~/.claude/projects",
@@ -177,6 +206,23 @@ Here's a complete example of how to configure the MCP server in your `claude_des
         "MAX_FILE_SIZE": "104857600",
         "DB_BACKUP_ENABLED": "false",
         "INDEX_THREADS": "1"
+      }
+    }
+  }
+}
+```
+
+**Option 2: Project-specific configuration** (team-shared) - Create `.mcp.json` in project root:
+
+```json
+{
+  "mcpServers": {
+    "conversation-search": {
+      "command": "claude-code-conversation-search-mcp",
+      "args": [],
+      "env": {
+        "MAX_RESULTS": "30",
+        "DEBUG": "true"
       }
     }
   }

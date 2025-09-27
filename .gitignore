@@ -101,4 +101,8 @@ Desktop.ini
 # Standalone binaries
 dist/
 
+# Personal notes
+docs/notes.md
+
 */01-standards*
+

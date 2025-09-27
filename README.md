@@ -38,12 +38,6 @@ Install and it auto-configures with Claude Code:
 npm install -g claude-code-conversation-search-mcp
 ```
 
-Test from any Claude Code session:
-```bash
-"list my projects"
-"find recent conversations"
-```
-
 Search across all projects while working in any project.
 
 ## Usage
@@ -111,55 +105,56 @@ npm link
 
 ## Configuration
 
-Add this MCP server to your Claude Code configuration:
+### Automatic Setup (Recommended)
 
-### macOS
-Edit `~/Library/Application Support/Claude/claude_desktop_config.json`:
+After installation, the MCP server auto-configures with Claude Code. No manual configuration needed!
+
+### Manual Configuration (Optional)
+
+If you need custom configuration, choose one of these approaches:
+
+**Option 1: Command Line (Recommended)**
+```bash
+# Add globally for all projects
+claude mcp add conversation-search claude-code-conversation-search-mcp
+
+# Add for current project only (creates .mcp.json)
+claude mcp add --scope project conversation-search claude-code-conversation-search-mcp
+```
+
+**Option 2: Edit Configuration Files Directly**
+
+**Global configuration** (all projects):
+```bash
+# Edit the global Claude Code config (run from anywhere)
+nano ~/.claude.json
+# Or use your preferred editor: code ~/.claude.json
+```
 
 ```json
 {
   "mcpServers": {
     "conversation-search": {
-      "command": "npx",
-      "args": ["claude-code-conversation-search-mcp"],
-      "env": {
-        "CONVERSATION_DB_PATH": "~/.claude/conversation-search.db",
-        "INDEX_INTERVAL": "300000",
-        "MAX_RESULTS": "20"
-      }
+      "command": "claude-code-conversation-search-mcp",
+      "args": []
     }
   }
 }
 ```
 
-### Windows
-Edit `%APPDATA%\Claude\claude_desktop_config.json`:
-
-```json
-{
-  "mcpServers": {
-    "conversation-search": {
-      "command": "npx",
-      "args": ["claude-code-conversation-search-mcp"],
-      "env": {
-        "CONVERSATION_DB_PATH": "%USERPROFILE%\\.claude\\conversation-search.db",
-        "INDEX_INTERVAL": "300000",
-        "MAX_RESULTS": "20"
-      }
-    }
-  }
-}
+**Project-specific configuration** (team-shared):
+```bash
+# Create project config file (run from project root)
+nano .mcp.json
+# Or: code .mcp.json
 ```
 
-### Linux
-Edit `~/.config/Claude/claude_desktop_config.json`:
-
 ```json
 {
   "mcpServers": {
     "conversation-search": {
-      "command": "npx",
-      "args": ["claude-conversation-search-mcp"]
+      "command": "claude-code-conversation-search-mcp",
+      "args": []
     }
   }
 }
@@ -279,7 +274,7 @@ Displays current version, recent changes, system status, and available tools.
 
 ### Complex Queries
 
-The query parser supports sophisticated natural language patterns:
+Our built-in query parser supports sophisticated natural language patterns:
 
 ```
 # Find specific file operations

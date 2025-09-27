@@ -20,7 +20,18 @@ npm install claude-code-conversation-search-mcp
 
 Add to your Claude Code MCP configuration file:
 
-**Location**: `~/.claude/mcp.json` (or your configured MCP file)
+**Global Configuration**: `~/.claude.json`  
+**Project Configuration**: `.mcp.json` (in project root)
+
+```bash
+# Edit global config (run from anywhere)
+nano ~/.claude.json
+# Or: code ~/.claude.json
+
+# Edit project config (run from project root)
+nano .mcp.json
+# Or: code .mcp.json
+```
 
 ```json
 {
