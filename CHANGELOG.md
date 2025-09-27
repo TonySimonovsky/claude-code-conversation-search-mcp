@@ -11,7 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `get_server_info` tool for retrieving server version, changelog, and system information
 - Comprehensive unit test suite with Jest framework (38 tests covering parser, database, and search)
 - Integration test suite for MCP protocol compliance (17 tests covering server initialization, tool execution, error handling, data persistence, and protocol compliance)
-- Test scripts (`npm test`, `npm run test:watch`, `npm run test:coverage`) in package.json
+- Performance benchmark suite (9 tests covering indexing, search, memory usage, and database performance with large datasets up to 10K messages)
+- Test scripts (`npm test`, `npm run test:watch`, `npm run test:coverage`, `npm run test:performance`) in package.json
 - ESLint configuration with TypeScript support for code quality
 - Lint scripts (`npm run lint`, `npm run lint:fix`) in package.json
 - Comprehensive documentation with installation and usage examples
