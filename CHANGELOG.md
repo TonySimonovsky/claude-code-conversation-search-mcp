@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- `get_server_info` tool for retrieving server version, changelog, and system information
 - ESLint configuration with TypeScript support for code quality
 - Lint scripts (`npm run lint`, `npm run lint:fix`) in package.json
 - Comprehensive documentation with installation and usage examples
@@ -15,11 +16,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - MIT License
 
 ### Changed
+- Migrated from CommonJS to ES2022 modules for better Node.js compatibility
+- Updated all import statements to include .js extensions for ES module support
 - Set package.json type to "module" for ES6 import support
 - Improved error handling with user-friendly messages
 - Enhanced README with troubleshooting section
 
 ### Fixed
+- TypeScript compilation issues with ES module imports
+- Reduced ESLint warnings from 13 to 7 by improving type definitions
 - Removed unused variables to improve code quality
 
 ## [1.0.0] - 2025-01-15

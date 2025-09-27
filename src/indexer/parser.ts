@@ -174,7 +174,7 @@ export class ConversationParser {
     if (message.message?.content && Array.isArray(message.message.content)) {
       for (const item of message.message.content) {
         if (item.type === 'tool_use') {
-          const op: any = {
+          const op: { type: string; description?: string; filePaths?: string[]; commands?: string[] } = {
             type: item.name,
             description: item.input?.description
           };
@@ -214,7 +214,7 @@ export class ConversationParser {
     const toolOperations = this.extractToolOperations(message);
 
     // Determine message type
-    let messageType: IndexedMessage['type'] = message.type as any;
+    let messageType: IndexedMessage['type'] = message.type as IndexedMessage['type'];
     if (message.toolUseResult) {
       messageType = 'tool_result';
     } else if (toolOperations && toolOperations.length > 0) {
