@@ -1,6 +1,6 @@
 {
   "name": "claude-code-conversation-search-mcp",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "type": "module",
   "description": "MCP server for searching Claude Code conversation history across all projects. Find and resume any discussion instantly.",
   "main": "lib/index.js",
