@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CommonJS wrapper for pkg compatibility with ES modules
 - MCP registry submission configuration with server.json
 - mcpName field in package.json for official MCP registry compliance
+- Successfully published to official MCP Registry (Server ID: bad1e277-654e-492f-bbd9-063702fb42a2)
 
 ### Changed
 - Enhanced package.json metadata for professional NPM publication
