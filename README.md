@@ -18,15 +18,15 @@ An MCP (Model Context Protocol) server that enables searching through Claude Cod
 ### Via npm (recommended)
 
 ```bash
-npm install -g claude-conversation-search-mcp
+npm install -g claude-code-conversation-search-mcp
 ```
 
 ### From source
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/claude-conversation-search-mcp.git
-cd claude-conversation-search-mcp
+git clone https://github.com/TonySimonovsky/claude-code-conversation-search-mcp.git
+cd claude-code-conversation-search-mcp
 
 # Install dependencies
 npm install
@@ -50,7 +50,7 @@ Edit `~/Library/Application Support/Claude/claude_desktop_config.json`:
   "mcpServers": {
     "conversation-search": {
       "command": "npx",
-      "args": ["claude-conversation-search-mcp"],
+      "args": ["claude-code-conversation-search-mcp"],
       "env": {
         "CONVERSATION_DB_PATH": "~/.claude/conversation-search.db",
         "INDEX_INTERVAL": "300000",
@@ -69,7 +69,7 @@ Edit `%APPDATA%\Claude\claude_desktop_config.json`:
   "mcpServers": {
     "conversation-search": {
       "command": "npx",
-      "args": ["claude-conversation-search-mcp"],
+      "args": ["claude-code-conversation-search-mcp"],
       "env": {
         "CONVERSATION_DB_PATH": "%USERPROFILE%\\.claude\\conversation-search.db",
         "INDEX_INTERVAL": "300000",
@@ -235,7 +235,7 @@ Supported time expressions:
 ```bash
 # Clone and install
 git clone <repository>
-cd claude-conversation-search-mcp
+cd claude-code-conversation-search-mcp
 npm install
 
 # Run in development mode with hot reload
@@ -301,7 +301,7 @@ Enable debug logging to troubleshoot issues:
   "mcpServers": {
     "conversation-search": {
       "command": "npx",
-      "args": ["claude-conversation-search-mcp"],
+      "args": ["claude-code-conversation-search-mcp"],
       "env": {
         "DEBUG": "true"
       }
@@ -325,6 +325,6 @@ Developed by Tony AI Champ & Claude Code, 09-2025
 ## Support
 
 For issues, feature requests, or questions:
-- Open an issue on [GitHub](https://github.com/yourusername/claude-conversation-search-mcp/issues)
+- Open an issue on [GitHub](https://github.com/TonySimonovsky/claude-code-conversation-search-mcp/issues)
 - Check existing issues for solutions
 - Include debug logs when reporting bugs
