@@ -3,6 +3,29 @@ import * as path from 'path';
 import * as fs from 'fs';
 import { IndexedMessage, SearchOptions, SearchResult } from '../types/index.js';
 
+// Database row types
+interface MessageRow {
+  id: string;
+  conversation_id: string;
+  project_path: string;
+  project_name: string;
+  timestamp: string;
+  type: string;
+  content: string;
+  raw_content: string;
+  tool_operations: string | null;
+  searchable_text: string;
+  message_uuid: string;
+  parent_uuid: string | null;
+  highlight?: string; // For FTS results
+}
+
+interface ProjectStatsRow {
+  project_path: string;
+  project_name: string;
+  message_count: number;
+}
+
 export class ConversationDatabase {
   private db: Database.Database;
   private dbPath: string;
@@ -122,7 +145,7 @@ export class ConversationDatabase {
         WHERE messages_fts MATCH ?
       `;
 
-      const params: any[] = [options.query];
+      const params: (string | number)[] = [options.query];
 
     // Add filters
     if (options.projectPath) {
@@ -179,7 +202,7 @@ export class ConversationDatabase {
       const stmt = this.db.prepare(query);
       const rows = stmt.all(...params);
 
-      return rows.map(row => this.rowToSearchResult(row, options));
+      return rows.map(row => this.rowToSearchResult(row as MessageRow, options));
     } catch (error) {
       if (process.env.DEBUG === 'true') {
         // eslint-disable-next-line no-console
@@ -189,14 +212,14 @@ export class ConversationDatabase {
     }
   }
 
-  private rowToSearchResult(row: any, options: SearchOptions): SearchResult {
+  private rowToSearchResult(row: MessageRow, options: SearchOptions): SearchResult {
     const message: IndexedMessage = {
       id: row.id,
       conversationId: row.conversation_id,
       projectPath: row.project_path,
       projectName: row.project_name,
       timestamp: new Date(row.timestamp),
-      type: row.type,
+      type: row.type as 'user' | 'assistant' | 'tool_use' | 'tool_result',
       content: row.content,
       rawContent: JSON.parse(row.raw_content),
       toolOperations: row.tool_operations ? JSON.parse(row.tool_operations) : undefined,
@@ -241,19 +264,19 @@ export class ConversationDatabase {
     const after = afterStmt.all(message.conversationId, message.timestamp.getTime(), size);
 
     return {
-      before: before.reverse().map(row => this.rowToIndexedMessage(row)),
-      after: after.map(row => this.rowToIndexedMessage(row))
+      before: before.reverse().map(row => this.rowToIndexedMessage(row as MessageRow)),
+      after: after.map(row => this.rowToIndexedMessage(row as MessageRow))
     };
   }
 
-  private rowToIndexedMessage(row: any): IndexedMessage {
+  private rowToIndexedMessage(row: MessageRow): IndexedMessage {
     return {
       id: row.id,
       conversationId: row.conversation_id,
       projectPath: row.project_path,
       projectName: row.project_name,
       timestamp: new Date(row.timestamp),
-      type: row.type,
+      type: row.type as 'user' | 'assistant' | 'tool_use' | 'tool_result',
       content: row.content,
       rawContent: JSON.parse(row.raw_content),
       toolOperations: row.tool_operations ? JSON.parse(row.tool_operations) : undefined,
@@ -271,7 +294,7 @@ export class ConversationDatabase {
       ORDER BY project_name
     `);
 
-    return stmt.all().map((row: any) => ({
+    return (stmt.all() as ProjectStatsRow[]).map((row: ProjectStatsRow) => ({
       path: row.project_path,
       name: row.project_name,
       messageCount: row.message_count
@@ -304,7 +327,7 @@ export class ConversationDatabase {
 
   getConversationMessages(conversationId: string, limit: number, startFrom: number): IndexedMessage[] {
     let query: string;
-    let params: any[];
+    let params: (string | number)[];
 
     if (startFrom >= 0) {
       // Start from beginning or specific position
@@ -332,7 +355,7 @@ export class ConversationDatabase {
     const stmt = this.db.prepare(query);
     const rows = stmt.all(...params);
 
-    return rows.map(row => this.rowToIndexedMessage(row));
+    return rows.map(row => this.rowToIndexedMessage(row as MessageRow));
   }
 
   close(): void {
