@@ -40,6 +40,20 @@ npm install -g claude-code-conversation-search-mcp
 
 Search across all projects while working in any project.
 
+### 🎯 Recommended: Enhanced Claude Code Integration
+
+For optimal search results and better Claude Code interaction, add these instructions to your global `~/.claude/CLAUDE.md` file:
+
+```bash
+# Add to ~/.claude/CLAUDE.md
+echo "- When asked to use conversation-search, you must start searching from very wide queries, narrowing down step by step. When responding based on this mcp results output a human readable text with proper newlines instead of formatting json." >> ~/.claude/CLAUDE.md
+```
+
+**Why this helps:**
+- **Better search strategy**: Claude will start with broad queries and progressively narrow down, finding more relevant results
+- **Human-readable output**: Instead of raw JSON, you'll get properly formatted responses with project paths, dates, and resume commands
+- **Improved UX**: Makes conversation search feel natural and intuitive within Claude Code workflows
+
 ## Usage
 
 ```bash
