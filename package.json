@@ -13,7 +13,7 @@
     "bin/",
     "src/",
     "examples/",
-    "docs-public/",
+    "docs/",
     "README.md",
     "LICENSE",
     "CHANGELOG.md"

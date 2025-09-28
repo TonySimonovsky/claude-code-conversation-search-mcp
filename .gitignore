@@ -71,8 +71,8 @@ claude_mcp_config.json
 # MCP registry tokens
 .mcpregistry_*
 
-# Development documentation
-docs/development/
+# Development documentation (internal)
+docs/dev/
 
 # OS files
 .DS_Store
