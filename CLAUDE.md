@@ -1,1 +1,1 @@
-- When asked to use conversation-search, you must start searching from very wide queries, narrowing down step by step.
+- When asked to use conversation-search, you must start searching from very wide queries, narrowing down step by step.When responding based on this mcp results output a human readable text with proper newlines instead of formatting json.

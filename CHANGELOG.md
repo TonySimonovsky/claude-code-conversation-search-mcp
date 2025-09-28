@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.0] - 2025-01-28
+
 ### Added
 - **Smart Directory Shortcuts**: Automatic creation of cross-platform directory shortcuts for faster project navigation
 - **Cross-platform shortcut support**: Works on macOS (symlinks), Linux (symlinks), and Windows (junctions/symlinks)
@@ -92,5 +94,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Chokidar for file watching
 - MCP SDK integration
 
-[Unreleased]: https://github.com/TonySimonovsky/claude-code-conversation-search-mcp/compare/v1.0.0...HEAD
+[Unreleased]: https://github.com/TonySimonovsky/claude-code-conversation-search-mcp/compare/v1.2.0...HEAD
+[1.2.0]: https://github.com/TonySimonovsky/claude-code-conversation-search-mcp/compare/v1.1.0...v1.2.0
+[1.1.0]: https://github.com/TonySimonovsky/claude-code-conversation-search-mcp/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/TonySimonovsky/claude-code-conversation-search-mcp/releases/tag/v1.0.0
