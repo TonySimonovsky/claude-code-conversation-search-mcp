@@ -12,11 +12,13 @@ export interface ConversationResult {
     }[];
 }
 export declare class ResultFormatter {
-    formatSearchResults(results: SearchResult[], limit?: number): {
+    private shortcutManager;
+    constructor();
+    formatSearchResults(results: SearchResult[], limit?: number): Promise<{
         conversations: ConversationResult[];
         totalMatches: number;
         totalConversations: number;
-    };
+    }>;
     private deduplicateMessages;
     private truncateContent;
 }

@@ -63,7 +63,26 @@ Every search gives you:
 - **Which project** the conversation was in
 - **When it happened** (date and time)
 - **What you discussed** (conversation summary)
-- **Exact command** to resume: `cd '/path/to/project' && claude --resume abc123`
+- **Smart shortcuts** to resume: `cd ~/.cs/project-name && claude --resume abc123`
+
+## Smart Directory Shortcuts
+
+The search automatically creates **directory shortcuts** for faster navigation:
+
+- **Cross-platform**: Works on macOS, Linux, and Windows
+- **Short paths**: Uses `~/.cs/` instead of long project paths
+- **Real directories**: Creates actual symlinks/junctions you can `cd` into
+- **Project-based names**: Uses meaningful names like `poc-fbf-v023-1-cc`
+- **Automatic creation**: Generated on-demand during search
+
+**Example:**
+```bash
+# Instead of:
+cd '/Users/username/very/long/path/to/project'
+
+# You get:
+cd ~/.cs/project-name
+```
 
 ## Technical
 

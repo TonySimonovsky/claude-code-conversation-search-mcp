@@ -461,7 +461,7 @@ export class ConversationSearchServer {
       const results = this.indexer.getDatabase().search(searchOptions);
       
       // Use ResultFormatter to process and group results
-      const { conversations, totalMatches, totalConversations } = this.resultFormatter.formatSearchResults(results, effectiveLimit);
+      const { conversations, totalMatches, totalConversations } = await this.resultFormatter.formatSearchResults(results, effectiveLimit);
       
       // Build the JSON output structure
       const output = {

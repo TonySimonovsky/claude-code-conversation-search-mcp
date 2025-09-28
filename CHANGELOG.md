@@ -8,6 +8,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Smart Directory Shortcuts**: Automatic creation of cross-platform directory shortcuts for faster project navigation
+- **Cross-platform shortcut support**: Works on macOS (symlinks), Linux (symlinks), and Windows (junctions/symlinks)
+- **Short path shortcuts**: Uses `~/.cs/` directory for much shorter navigation commands
+- **Project-based naming**: Generates meaningful shortcut names from project names (3-5 words hyphenated)
+- **Automatic collision handling**: Handles duplicate project names with numbered suffixes
+- **Real directory access**: Creates actual symlinks/junctions that work with `cd` command
 - GitHub Actions workflow for automated releases with standalone binaries
 - Cross-platform standalone binaries (Linux, macOS, Windows) using pkg
 - GitHub Releases documentation with installation and usage instructions
@@ -17,11 +23,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Successfully published to official MCP Registry (Server ID: bad1e277-654e-492f-bbd9-063702fb42a2)
 
 ### Changed
+- **Resume commands now use shortcuts**: Changed from `cd '/long/path'` to `cd ~/.cs/project-name`
+- **Improved command readability**: 42% shorter resume commands with tilde expansion
+- **Enhanced user experience**: One-step navigation to any project directory
 - Enhanced package.json metadata for professional NPM publication
 - Added comprehensive keywords for better discoverability  
 - Added platform support indicators and Node.js engine requirements
 - Added helpful npm scripts for package management (clean, prebuild, prepublishOnly, postinstall, test:all)
 - Added pkg configuration and build scripts for standalone binary creation
+
+### Fixed
+- **Shell tilde expansion**: Fixed quote handling to ensure `~` properly expands in shell commands
 
 ## [1.1.0] - 2025-01-27
 

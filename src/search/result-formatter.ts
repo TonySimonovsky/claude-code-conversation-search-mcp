@@ -1,4 +1,5 @@
 import { SearchResult } from '../types/index.js';
+import { ShortcutManager } from '../utils/shortcuts.js';
 
 export interface ConversationResult {
   conversationId: string;
@@ -14,11 +15,17 @@ export interface ConversationResult {
 }
 
 export class ResultFormatter {
-  formatSearchResults(results: SearchResult[], limit: number = 10): {
+  private shortcutManager: ShortcutManager;
+
+  constructor() {
+    this.shortcutManager = new ShortcutManager();
+  }
+
+  async formatSearchResults(results: SearchResult[], limit: number = 10): Promise<{
     conversations: ConversationResult[];
     totalMatches: number;
     totalConversations: number;
-  } {
+  }> {
     // Group results by conversation ID + project path to handle duplicate conversation IDs across projects
     const conversationMap = new Map<string, SearchResult[]>();
     
@@ -47,11 +54,15 @@ export class ResultFormatter {
       // Get unique messages (deduplicate by content hash)
       const uniqueMessages = this.deduplicateMessages(convResults);
       
+      // Create or get shortcut for the project path
+      const shortcutName = await this.shortcutManager.getOrCreateShortcut(projectPath, projectName);
+      const shortcutCommand = this.shortcutManager.getShortcutCommand(shortcutName);
+      
       conversations.push({
         conversationId: actualConvId,
         projectPath: projectPath,
         projectName: projectName,
-        resumeCommand: `cd '${projectPath}' && claude --resume ${actualConvId}`,
+        resumeCommand: `${shortcutCommand} && claude --resume ${actualConvId}`,
         messages: uniqueMessages.slice(0, 5).map(result => ({
           timestamp: result.message.timestamp.toISOString(),
           type: result.message.type,
