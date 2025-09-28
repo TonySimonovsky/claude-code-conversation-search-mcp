@@ -157,7 +157,11 @@ describe('MCP Protocol Integration Tests', () => {
       expect(result.content).toBeDefined();
       expect(Array.isArray(result.content)).toBe(true);
       expect(result.content[0].type).toBe('text');
-      expect(result.content[0].text).toContain('Found');
+      // Check for JSON response structure
+      const response = JSON.parse(result.content[0].text);
+      expect(response).toHaveProperty('query');
+      expect(response).toHaveProperty('totalMatches');
+      expect(response).toHaveProperty('conversations');
     });
 
     it('should execute get_conversation_messages tool successfully', async () => {
@@ -312,7 +316,11 @@ describe('MCP Protocol Integration Tests', () => {
         query: 'fix TypeScript error'
       });
 
-      expect(result.content[0].text).toContain('Found');
+      // Check for JSON response structure
+      const response = JSON.parse(result.content[0].text);
+      expect(response).toHaveProperty('query');
+      expect(response).toHaveProperty('totalMatches');
+      expect(response).toHaveProperty('conversations');
     });
   });
 
