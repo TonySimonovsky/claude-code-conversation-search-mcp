@@ -48,6 +48,7 @@ export declare class ConversationSearchServer {
     }>;
     close(): void;
     private searchConversations;
+    private generateSummary;
     private listProjects;
     private getMessageContext;
     private getConversationMessages;
