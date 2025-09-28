@@ -1,6 +1,6 @@
 {
   "name": "claude-code-conversation-search-mcp",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "type": "module",
   "description": "Never lose your Claude Code conversations again. Search across all projects, find old chats, and resume where you left off.",
   "mcpName": "io.github.TonySimonovsky/claude-code-conversation-search-mcp",
