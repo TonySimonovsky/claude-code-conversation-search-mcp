@@ -471,15 +471,25 @@ export class ConversationSearchServer {
         conversations: conversations
       };
 
+      // Return structured JSON data instead of formatted text
+      const searchResults = {
+        query: query,
+        totalMatches: totalMatches,
+        totalConversations: totalConversations,
+        conversations: conversations.map(conv => ({
+          project: conv.projectName,
+          date: conv.messages[0]?.timestamp.split('T')[0] || 'Unknown',
+          summary: this.generateSummary(conv.messages),
+          resumeCommand: conv.resumeCommand,
+          conversationId: conv.conversationId
+        }))
+      };
+
       return {
         content: [
           {
             type: 'text',
-            text: `Found ${totalMatches} matches in ${totalConversations} conversations for query: "${query}"`,
-          },
-          {
-            type: 'text',
-            text: JSON.stringify(output, null, 2),
+            text: JSON.stringify(searchResults, null, 2),
           },
         ],
       };
@@ -487,6 +497,25 @@ export class ConversationSearchServer {
       this.logError(`Error searching conversations: ${(error as Error).message}`, error);
       return getErrorResponse(error, 'Search');
     }
+  }
+
+  private generateSummary(messages: any[]): string {
+    if (messages.length === 0) return 'No messages';
+    
+    // Take a sample of message content to generate summary
+    const sampleContent = messages
+      .slice(0, 3)
+      .map(msg => msg.content)
+      .join(' ')
+      .substring(0, 100)
+      .replace(/[{}"]/g, '')
+      .trim();
+    
+    if (sampleContent.length > 50) {
+      return sampleContent.substring(0, 50) + '...';
+    }
+    
+    return sampleContent || 'Conversation content';
   }
 
   private async listProjects() {
